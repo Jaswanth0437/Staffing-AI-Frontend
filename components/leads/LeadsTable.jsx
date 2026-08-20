@@ -1,41 +1,27 @@
-"use client";
-
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Eye, MoreVertical, Pencil, Trash2, Users } from "lucide-react";
+import { Eye, Users } from "lucide-react";
 import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
-import { Checkbox } from "@/components/ui/Checkbox";
-import { Dropdown } from "@/components/ui/Dropdown";
+import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LeadStatusBadge } from "./LeadStatusBadge";
-import { formatDate, orNotAvailable, titleCase } from "@/lib/utils";
+import { CONTACT_TIER_LABELS } from "@/lib/constants";
+import { formatDate, orNotAvailable } from "@/lib/utils";
 export function LeadsTable({
-  leads,
-  selected,
-  onToggle,
-  onToggleAll,
-  onDelete
+  leads
 }) {
-  const router = useRouter();
   if (leads.length === 0) {
-    return <EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="Try adjusting your filters or add a new lead." />;
+    return <EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="Leads appear here once a qualified job is turned into a lead from a campaign." />;
   }
-  const allSelected = leads.length > 0 && leads.every(l => selected.has(l.id));
   return <TableContainer>
       <Table>
         <THead>
           <TR>
-            <TH className="w-10">
-              <Checkbox aria-label="Select all leads" checked={allSelected} onChange={onToggleAll} />
-            </TH>
-            <TH>Lead Name</TH>
+            <TH>Contact</TH>
+            <TH>Tier</TH>
             <TH>Job Title</TH>
             <TH>Company</TH>
             <TH>Email</TH>
             <TH>Phone</TH>
-            <TH>Location</TH>
-            <TH>Lead Type</TH>
-            <TH>Source</TH>
             <TH>Status</TH>
             <TH>Created</TH>
             <TH className="text-right">Actions</TH>
@@ -43,42 +29,23 @@ export function LeadsTable({
         </THead>
         <TBody>
           {leads.map(lead => <TR key={lead.id}>
+              <TD className="font-medium text-foreground">{orNotAvailable(lead.contact?.name)}</TD>
               <TD>
-                <Checkbox aria-label={`Select ${lead.contact?.name ?? "lead"}`} checked={selected.has(lead.id)} onChange={() => onToggle(lead.id)} />
+                <Badge tone="neutral">{CONTACT_TIER_LABELS[lead.contact?.type] ?? "Unknown"}</Badge>
               </TD>
-              <TD>
-                <Link href={`/leads/${lead.id}`} className="font-medium text-foreground hover:text-brand">
-                  {lead.contact?.name ?? "Unknown"}
-                </Link>
-              </TD>
-              <TD className="text-muted-foreground">{orNotAvailable(lead.contact?.job_title)}</TD>
+              <TD className="text-muted-foreground">{orNotAvailable(lead.job?.job_title)}</TD>
               <TD className="text-muted-foreground">{orNotAvailable(lead.company?.company_name)}</TD>
               <TD className="text-muted-foreground">{orNotAvailable(lead.contact?.email)}</TD>
               <TD className="text-muted-foreground">{orNotAvailable(lead.contact?.phone)}</TD>
-              <TD className="text-muted-foreground">{orNotAvailable(lead.job?.job_location)}</TD>
-              <TD className="text-muted-foreground">{lead.lead_type ? titleCase(lead.lead_type) : "—"}</TD>
-              <TD className="text-muted-foreground">{lead.source}</TD>
               <TD>
                 <LeadStatusBadge status={lead.status} />
               </TD>
               <TD className="text-muted-foreground">{formatDate(lead.created_at)}</TD>
               <TD className="text-right">
-                <Dropdown trigger={<button className="focus-ring rounded-lg p-1.5 text-muted-foreground hover:bg-gray-100" aria-label="Lead actions">
-                      <MoreVertical className="h-4 w-4" />
-                    </button>} items={[{
-              label: "View",
-              icon: <Eye className="h-4 w-4" />,
-              onSelect: () => router.push(`/leads/${lead.id}`)
-            }, {
-              label: "Edit",
-              icon: <Pencil className="h-4 w-4" />,
-              onSelect: () => router.push(`/leads/${lead.id}/edit`)
-            }, {
-              label: "Delete",
-              icon: <Trash2 className="h-4 w-4" />,
-              danger: true,
-              onSelect: () => onDelete(lead.id)
-            }]} />
+                <Link href={`/campaigns/${lead.campaign_id}/leads/${lead.id}`} className="focus-ring inline-flex h-8 items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
+                  <Eye className="h-3.5 w-3.5" />
+                  View
+                </Link>
               </TD>
             </TR>)}
         </TBody>

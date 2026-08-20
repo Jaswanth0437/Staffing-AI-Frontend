@@ -1,8 +1,10 @@
 import { Badge } from "@/components/ui/Badge";
 import { titleCase } from "@/lib/utils";
 const TONE = {
-  active: "warning",
-  completed: "success"
+  pending: "neutral",
+  running: "warning",
+  completed: "success",
+  failed: "danger"
 };
 export function CampaignStatusBadge({
   status

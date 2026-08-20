@@ -19,28 +19,20 @@ export default function CompaniesPage() {
     refetch
   } = useCompanies();
   const [search, setSearch] = useState("");
-  const [industry, setIndustry] = useState("all");
-  const [size, setSize] = useState("all");
   const [location, setLocation] = useState("all");
   const [page, setPage] = useState(1);
-  const industries = useMemo(() => Array.from(new Set((companies ?? []).map(c => c.industry).filter(Boolean))), [companies]);
   const locations = useMemo(() => Array.from(new Set((companies ?? []).map(c => c.location).filter(Boolean))), [companies]);
   const filtered = useMemo(() => {
     if (!companies) return [];
     return companies.filter(c => {
       if (search && !c.company_name?.toLowerCase().includes(search.toLowerCase())) return false;
-      if (industry !== "all" && c.industry !== industry) return false;
       if (location !== "all" && c.location !== location) return false;
-      const count = c.employee_count ?? 0;
-      if (size === "small" && count >= 50) return false;
-      if (size === "mid" && (count < 50 || count > 10000)) return false;
-      if (size === "large" && count <= 10000) return false;
       return true;
     });
-  }, [companies, search, industry, size, location]);
+  }, [companies, search, location]);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   return <div>
-      <PageHeader title="Companies" subtitle="Companies discovered through job qualification and enrichment." />
+      <PageHeader title="Companies" subtitle="Companies discovered through job qualification, grouped from every campaign's jobs." />
 
       {error && <ErrorState description={error} onRetry={refetch} />}
 
@@ -54,32 +46,6 @@ export default function CompaniesPage() {
           }} placeholder="Search companies..." aria-label="Search companies" className="focus-ring h-9 w-full rounded-lg border border-border-strong bg-white pl-9 pr-3 text-sm placeholder:text-muted-foreground" />
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <Select aria-label="Filter by industry" value={industry} onChange={e => {
-            setIndustry(e.target.value);
-            setPage(1);
-          }} options={[{
-            label: "All industries",
-            value: "all"
-          }, ...industries.map(i => ({
-            label: i,
-            value: i
-          }))]} className="w-auto min-w-[10rem]" />
-              <Select aria-label="Filter by employee size" value={size} onChange={e => {
-            setSize(e.target.value);
-            setPage(1);
-          }} options={[{
-            label: "Any employee size",
-            value: "all"
-          }, {
-            label: "Under 50",
-            value: "small"
-          }, {
-            label: "50 – 10,000",
-            value: "mid"
-          }, {
-            label: "Over 10,000",
-            value: "large"
-          }]} className="w-auto min-w-[10rem]" />
               <Select aria-label="Filter by location" value={location} onChange={e => {
             setLocation(e.target.value);
             setPage(1);
@@ -93,7 +59,7 @@ export default function CompaniesPage() {
             </div>
           </div>
 
-          {loading && <TableSkeleton rows={8} cols={9} />}
+          {loading && <TableSkeleton rows={8} cols={7} />}
           {!loading && <CompaniesTable companies={paginated} />}
           {!loading && filtered.length > 0 && <Pagination page={page} pageSize={PAGE_SIZE} total={filtered.length} onPageChange={setPage} />}
         </Card>}

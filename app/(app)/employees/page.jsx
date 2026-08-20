@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IdCard, Pencil, Plus, Trash2 } from "lucide-react";
+import { IdCard, Pencil, RefreshCw, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
@@ -12,15 +12,10 @@ import { TableSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
-import { EmployeeFormModal } from "@/components/employees/EmployeeFormModal";
+import { EmployeeEditModal } from "@/components/employees/EmployeeEditModal";
 import { useEmployees } from "@/hooks/useEmployees";
-import { createEmployee, deleteEmployee, updateEmployee } from "@/lib/api";
-import { orNotAvailable, titleCase } from "@/lib/utils";
-const AVAILABILITY_TONE = {
-  available: "success",
-  "on-bench": "warning",
-  deployed: "neutral"
-};
+import { deleteEmployee, syncEmployees, updateEmployee } from "@/lib/api";
+import { orNotAvailable } from "@/lib/utils";
 export default function EmployeesPage() {
   const {
     data: employees,
@@ -31,76 +26,81 @@ export default function EmployeesPage() {
   const {
     toast
   } = useToast();
-  const [formOpen, setFormOpen] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [editing, setEditing] = useState(null);
-  const [deleteTarget, setDeleteTarget] = useState(null);
   const [saving, setSaving] = useState(false);
-  function openCreate() {
-    setEditing(null);
-    setFormOpen(true);
-  }
-  function openEdit(employee) {
-    setEditing(employee);
-    setFormOpen(true);
-  }
-  async function handleSubmit(values) {
-    setSaving(true);
+  const [deleting, setDeleting] = useState(null);
+  const [removing, setRemoving] = useState(false);
+
+  async function handleSync() {
+    setSyncing(true);
     try {
-      if (editing) {
-        await updateEmployee(editing.id, values);
-        toast({
-          tone: "success",
-          title: "Employee updated"
-        });
-      } else {
-        await createEmployee(values);
-        toast({
-          tone: "success",
-          title: "Employee added"
-        });
-      }
-      setFormOpen(false);
+      const result = await syncEmployees();
+      toast({
+        tone: "success",
+        title: "Employees synced",
+        description: `${result.synced} record(s) pulled from ${result.source}${result.fallback_reason ? ` (Salesforce unavailable: ${result.fallback_reason})` : ""}.`
+      });
       refetch();
     } catch (err) {
       toast({
         tone: "error",
-        title: "Failed to save employee",
+        title: "Sync failed",
+        description: err instanceof Error ? err.message : undefined
+      });
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  async function handleSave(employeeId, values) {
+    setSaving(true);
+    try {
+      await updateEmployee(employeeId, values);
+      toast({ tone: "success", title: "Employee updated" });
+      setEditing(null);
+      refetch();
+    } catch (err) {
+      toast({
+        tone: "error",
+        title: "Update failed",
         description: err instanceof Error ? err.message : undefined
       });
     } finally {
       setSaving(false);
     }
   }
+
   async function handleDelete() {
-    if (!deleteTarget) return;
+    if (!deleting) return;
+    setRemoving(true);
     try {
-      await deleteEmployee(deleteTarget.id);
-      toast({
-        tone: "success",
-        title: "Employee removed"
-      });
+      await deleteEmployee(deleting.id);
+      toast({ tone: "success", title: "Employee deleted" });
+      setDeleting(null);
       refetch();
     } catch (err) {
       toast({
         tone: "error",
-        title: "Failed to remove employee",
+        title: "Delete failed",
         description: err instanceof Error ? err.message : undefined
       });
     } finally {
-      setDeleteTarget(null);
+      setRemoving(false);
     }
   }
+
   return <div>
-      <PageHeader title="Employees" subtitle="Your bench of employees, matched against lead job requirements in the campaign flow." actions={<Button icon={<Plus className="h-4 w-4" />} onClick={openCreate}>
-            Add Employee
+      <PageHeader title="Employees" subtitle="Your bench, synced from Salesforce — matched against lead job requirements in the campaign flow." actions={<Button icon={<RefreshCw className="h-4 w-4" />} loading={syncing} onClick={handleSync}>
+            Sync from Salesforce
           </Button>} />
 
       {error && <ErrorState description={error} onRetry={refetch} />}
 
       {!error && <Card>
-          {loading && <TableSkeleton rows={5} cols={6} />}
+          {loading && <TableSkeleton rows={5} cols={4} />}
 
-          {!loading && (!employees || employees.length === 0) && <EmptyState icon={<IdCard className="h-5 w-5" />} title="No employees yet" description="Add your bench of employees so they can be matched against lead job requirements." />}
+          {!loading && (!employees || employees.length === 0) && <EmptyState icon={<IdCard className="h-5 w-5" />} title="No employees yet" description="Click Sync from Salesforce to pull the bench roster before matching leads." />}
 
           {!loading && employees && employees.length > 0 && <TableContainer>
               <Table>
@@ -109,9 +109,8 @@ export default function EmployeesPage() {
                     <TH>Name</TH>
                     <TH>Role</TH>
                     <TH>Skills</TH>
-                    <TH>Experience</TH>
-                    <TH>Availability</TH>
-                    <TH>Email</TH>
+                    <TH>Seniority</TH>
+                    <TH>Summary</TH>
                     <TH className="text-right">Actions</TH>
                   </TR>
                 </THead>
@@ -126,20 +125,15 @@ export default function EmployeesPage() {
                             </Badge>)}
                         </div>
                       </TD>
-                      <TD className="text-muted-foreground">{employee.experience_years} yrs</TD>
-                      <TD>
-                        <Badge tone={AVAILABILITY_TONE[employee.availability]} dot>
-                          {titleCase(employee.availability.replace("-", "_"))}
-                        </Badge>
-                      </TD>
-                      <TD className="text-muted-foreground">{orNotAvailable(employee.email)}</TD>
+                      <TD className="text-muted-foreground">{orNotAvailable(employee.seniority)}</TD>
+                      <TD className="max-w-sm truncate text-muted-foreground">{orNotAvailable(employee.summary)}</TD>
                       <TD className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="icon" aria-label="Edit employee" onClick={() => openEdit(employee)}>
-                            <Pencil className="h-4 w-4" />
+                        <div className="flex items-center justify-end gap-2">
+                          <Button variant="outline" size="icon" aria-label="Edit employee" onClick={() => setEditing(employee)}>
+                            <Pencil className="h-3.5 w-3.5" />
                           </Button>
-                          <Button variant="outline" size="icon" aria-label="Delete employee" onClick={() => setDeleteTarget(employee)}>
-                            <Trash2 className="h-4 w-4" />
+                          <Button variant="outline" size="icon" aria-label="Delete employee" onClick={() => setDeleting(employee)}>
+                            <Trash2 className="h-3.5 w-3.5 text-danger" />
                           </Button>
                         </div>
                       </TD>
@@ -149,18 +143,18 @@ export default function EmployeesPage() {
             </TableContainer>}
         </Card>}
 
-      <EmployeeFormModal open={formOpen} onClose={() => setFormOpen(false)} onSubmit={handleSubmit} employee={editing} saving={saving} />
+      <EmployeeEditModal employee={editing} saving={saving} onClose={() => setEditing(null)} onSave={handleSave} />
 
-      <Modal open={!!deleteTarget} onClose={() => setDeleteTarget(null)} title="Remove employee" footer={<>
-            <Button variant="outline" onClick={() => setDeleteTarget(null)}>
+      <Modal open={!!deleting} onClose={() => setDeleting(null)} title="Delete Employee" footer={<>
+            <Button variant="outline" onClick={() => setDeleting(null)} disabled={removing}>
               Cancel
             </Button>
-            <Button variant="danger" onClick={handleDelete}>
-              Remove
+            <Button variant="danger" loading={removing} onClick={handleDelete}>
+              Delete
             </Button>
           </>}>
-        <p className="text-sm text-muted-foreground">
-          Are you sure you want to remove {deleteTarget?.name} from your bench? This action cannot be undone.
+        <p className="text-sm text-foreground">
+          Are you sure you want to delete <span className="font-medium">{deleting?.name}</span>? This can&apos;t be undone, and will fail if this employee is already matched or emailed against a lead.
         </p>
       </Modal>
     </div>;

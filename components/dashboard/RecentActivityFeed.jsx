@@ -9,7 +9,7 @@ export function RecentActivityFeed({
 }) {
   return <Card>
       <CardHeader title="Recent activity" subtitle="Latest updates across your pipeline" />
-      <div className="divide-y divide-border">
+      <div className="max-h-[22rem] divide-y divide-border overflow-y-auto">
         {loading && Array.from({
         length: 4
       }).map((_, i) => <div key={i} className="flex items-start gap-3 px-5 py-3.5">

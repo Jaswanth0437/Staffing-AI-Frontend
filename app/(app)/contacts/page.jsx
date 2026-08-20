@@ -10,6 +10,7 @@ import { TableSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ContactsTable } from "@/components/contacts/ContactsTable";
 import { useContacts } from "@/hooks/useContacts";
+import { CONTACT_TIER_LABELS } from "@/lib/constants";
 const PAGE_SIZE = 8;
 export default function ContactsPage() {
   const {
@@ -38,7 +39,7 @@ export default function ContactsPage() {
   }, [contacts, search, contactType, company]);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   return <div>
-      <PageHeader title="Contacts" subtitle="Job posters and HR contacts enriched via Apollo." />
+      <PageHeader title="Contacts" subtitle="Every contact resolved via Apollo across your leads, from HR contacts down to the company-level fallback." />
 
       {error && <ErrorState description={error} onRetry={refetch} />}
 
@@ -58,13 +59,10 @@ export default function ContactsPage() {
           }} options={[{
             label: "All contact types",
             value: "all"
-          }, {
-            label: "Job Poster",
-            value: "job_poster"
-          }, {
-            label: "HR Recruiter",
-            value: "hr_recruiter"
-          }]} className="w-auto min-w-[10rem]" />
+          }, ...Object.entries(CONTACT_TIER_LABELS).map(([value, label]) => ({
+            label,
+            value
+          }))]} className="w-auto min-w-[10rem]" />
               <Select aria-label="Filter by company" value={company} onChange={e => {
             setCompany(e.target.value);
             setPage(1);

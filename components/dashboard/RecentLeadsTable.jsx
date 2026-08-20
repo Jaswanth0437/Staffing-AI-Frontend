@@ -26,14 +26,13 @@ export function RecentLeadsTable({
                 <TH>Company</TH>
                 <TH>Email</TH>
                 <TH>Phone</TH>
-                <TH>Source</TH>
                 <TH>Status</TH>
               </TR>
             </THead>
             <TBody>
               {recent.map(lead => <TR key={lead.id}>
                   <TD>
-                    <Link href={`/leads/${lead.id}`} className="font-medium text-foreground hover:text-brand">
+                    <Link href={`/campaigns/${lead.campaign_id}/leads/${lead.id}`} className="font-medium text-foreground hover:text-brand">
                       {lead.contact?.name ?? "Unknown"}
                     </Link>
                   </TD>
@@ -41,7 +40,6 @@ export function RecentLeadsTable({
                   <TD className="text-muted-foreground">{orNotAvailable(lead.company?.company_name)}</TD>
                   <TD className="text-muted-foreground">{orNotAvailable(lead.contact?.email)}</TD>
                   <TD className="text-muted-foreground">{orNotAvailable(lead.contact?.phone)}</TD>
-                  <TD className="text-muted-foreground">{lead.source}</TD>
                   <TD>
                     <LeadStatusBadge status={lead.status} />
                   </TD>
