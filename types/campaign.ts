@@ -1,29 +1,40 @@
-export type CampaignStatus = "draft" | "active" | "paused" | "completed";
+import type { JobSearchParams } from "./job";
 
-export interface CampaignLead {
-  lead_id: string;
-  name: string;
-  company: string;
-  email?: string;
-  status: "pending" | "sent" | "opened" | "replied" | "failed";
-  last_activity?: string;
-}
+export type CampaignStage =
+  | "name"
+  | "jobs_review"
+  | "lead_confirm"
+  | "matching"
+  | "email"
+  | "completed";
+
+export type CampaignStatus = "active" | "completed";
 
 export interface Campaign {
   id: string;
   name: string;
+  role_name: string;
+  search_filters: JobSearchParams;
+  stage: CampaignStage;
   status: CampaignStatus;
-  leads_count: number;
   created_at: string;
-  last_activity_at?: string;
-  subject?: string;
-  body?: string;
-  stats?: {
-    total: number;
-    sent: number;
-    opened: number;
-    replied: number;
-    failed: number;
-  };
-  leads?: CampaignLead[];
+  completed_at?: string;
 }
+
+export const CAMPAIGN_STAGE_ORDER: CampaignStage[] = [
+  "name",
+  "jobs_review",
+  "lead_confirm",
+  "matching",
+  "email",
+  "completed",
+];
+
+export const CAMPAIGN_STAGE_LABELS: Record<CampaignStage, string> = {
+  name: "Name",
+  jobs_review: "Jobs Review",
+  lead_confirm: "Lead Confirmation",
+  matching: "Employee Matching",
+  email: "Email Outreach",
+  completed: "Completed",
+};

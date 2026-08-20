@@ -3,26 +3,31 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Briefcase,
   Building2,
+  ChevronDown,
   Contact as ContactIcon,
+  IdCard,
   LayoutDashboard,
+  Mail,
   Megaphone,
+  Search,
   Settings,
   Users,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, initials } from "@/lib/utils";
 import { APP_NAME, NAV_ITEMS } from "@/lib/constants";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   LayoutDashboard,
-  Briefcase,
+  Search,
   Users,
   Building2,
   Contact: ContactIcon,
   Megaphone,
+  IdCard,
+  Mail,
 };
 
 export function Sidebar({
@@ -40,7 +45,7 @@ export function Sidebar({
     <nav
       aria-label="Primary"
       className={cn(
-        "flex h-full flex-col bg-[var(--sidebar-bg)] transition-[width] duration-200",
+        "flex h-full flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] transition-[width] duration-200",
         collapsed ? "w-[68px]" : "w-64",
       )}
     >
@@ -49,9 +54,18 @@ export function Sidebar({
           L
         </div>
         {!collapsed && (
-          <span className="truncate text-sm font-semibold tracking-tight text-white">
+          <span className="truncate text-sm font-semibold tracking-tight text-foreground">
             {APP_NAME}
           </span>
+        )}
+        {onToggle && (
+          <button
+            onClick={onToggle}
+            className="focus-ring ml-auto hidden shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-gray-100 md:flex"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+          </button>
         )}
       </div>
 
@@ -68,12 +82,12 @@ export function Sidebar({
               className={cn(
                 "focus-ring group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 active
-                  ? "bg-white/10 text-white"
-                  : "text-[var(--sidebar-foreground)] hover:bg-white/5 hover:text-white",
+                  ? "bg-brand-soft text-brand"
+                  : "text-[var(--sidebar-foreground)] hover:bg-gray-100 hover:text-foreground",
                 collapsed && "justify-center px-0",
               )}
             >
-              <Icon className="h-[18px] w-[18px] shrink-0" />
+              <Icon className="h-5 w-5 shrink-0" />
               {!collapsed && <span className="truncate">{item.label}</span>}
               {collapsed && (
                 <span className="pointer-events-none absolute left-full ml-2 z-30 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
@@ -93,12 +107,12 @@ export function Sidebar({
           className={cn(
             "focus-ring group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
             pathname.startsWith("/settings")
-              ? "bg-white/10 text-white"
-              : "text-[var(--sidebar-foreground)] hover:bg-white/5 hover:text-white",
+              ? "bg-brand-soft text-brand"
+              : "text-[var(--sidebar-foreground)] hover:bg-gray-100 hover:text-foreground",
             collapsed && "justify-center px-0",
           )}
         >
-          <Settings className="h-[18px] w-[18px] shrink-0" />
+          <Settings className="h-5 w-5 shrink-0" />
           {!collapsed && <span>Settings</span>}
           {collapsed && (
             <span className="pointer-events-none absolute left-full ml-2 z-30 whitespace-nowrap rounded-md bg-gray-900 px-2 py-1 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
@@ -107,25 +121,25 @@ export function Sidebar({
           )}
         </Link>
 
-        {onToggle && (
-          <button
-            onClick={onToggle}
-            className={cn(
-              "focus-ring mt-1 hidden w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-[var(--sidebar-foreground)] hover:bg-white/5 hover:text-white md:flex",
-              collapsed && "justify-center px-0",
-            )}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {collapsed ? (
-              <PanelLeftOpen className="h-[18px] w-[18px]" />
-            ) : (
-              <>
-                <PanelLeftClose className="h-[18px] w-[18px]" />
-                <span>Collapse</span>
-              </>
-            )}
-          </button>
-        )}
+        <button
+          className={cn(
+            "focus-ring mt-2 flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left hover:bg-gray-100",
+            collapsed && "justify-center px-0",
+          )}
+        >
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand">
+            {initials(APP_NAME)}
+          </span>
+          {!collapsed && (
+            <>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-foreground">Alex Morgan</span>
+                <span className="block truncate text-xs text-muted-foreground">{APP_NAME}</span>
+              </span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+            </>
+          )}
+        </button>
       </div>
     </nav>
   );

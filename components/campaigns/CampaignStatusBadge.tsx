@@ -3,10 +3,8 @@ import type { CampaignStatus } from "@/types/campaign";
 import { titleCase } from "@/lib/utils";
 
 const TONE: Record<CampaignStatus, "neutral" | "success" | "warning" | "brand"> = {
-  draft: "neutral",
-  active: "success",
-  paused: "warning",
-  completed: "brand",
+  active: "warning",
+  completed: "success",
 };
 
 export function CampaignStatusBadge({ status }: { status: CampaignStatus }) {

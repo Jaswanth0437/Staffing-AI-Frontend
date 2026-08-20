@@ -8,24 +8,26 @@
   --border: #e5e7eb;
   --border-strong: #d1d5db;
 
-  --brand: #4f46e5;
-  --brand-hover: #4338ca;
+  --brand: #16a34a;
+  --brand-hover: #15803d;
   --brand-foreground: #ffffff;
-  --brand-soft: #eef2ff;
+  --brand-soft: #dcfce7;
 
-  --success: #059669;
-  --success-soft: #ecfdf5;
+  --success: #16a34a;
+  --success-soft: #dcfce7;
   --danger: #dc2626;
   --danger-soft: #fef2f2;
   --warning: #d97706;
-  --warning-soft: #fffbeb;
+  --warning-soft: #fef3c7;
   --info: #2563eb;
   --info-soft: #eff6ff;
+  --violet: #7c3aed;
+  --violet-soft: #f3e8ff;
 
-  --sidebar-bg: #111827;
-  --sidebar-foreground: #d1d5db;
-  --sidebar-foreground-active: #ffffff;
-  --sidebar-border: #1f2937;
+  --sidebar-bg: #ffffff;
+  --sidebar-foreground: #4b5563;
+  --sidebar-foreground-active: #16a34a;
+  --sidebar-border: #e5e7eb;
 }
 
 @theme inline {
@@ -47,6 +49,8 @@
   --color-warning-soft: var(--warning-soft);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
   --font-sans: var(--font-inter);
 }
 

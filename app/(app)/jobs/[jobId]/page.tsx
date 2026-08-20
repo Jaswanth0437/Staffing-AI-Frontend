@@ -78,7 +78,7 @@ export default function JobDetailsPage({ params }: { params: Promise<{ jobId: st
   return (
     <div>
       <PageHeader
-        breadcrumbs={[{ label: "Jobs", href: "/jobs" }, { label: job.job_title }]}
+        breadcrumbs={[{ label: "Campaign", href: `/campaigns/${job.campaign_id}` }, { label: job.job_title }]}
         title={
           <span className="flex flex-wrap items-center gap-3">
             {job.job_title}

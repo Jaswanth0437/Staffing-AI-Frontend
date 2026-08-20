@@ -13,6 +13,8 @@ export type LeadType = "job_poster" | "hr_recruiter" | "company_only";
 
 export interface Lead {
   id: string;
+  campaign_id?: string;
+  confirmed?: boolean;
   contact?: Contact;
   company?: Company;
   job?: Job;

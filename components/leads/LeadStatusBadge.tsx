@@ -2,9 +2,9 @@ import { Badge } from "@/components/ui/Badge";
 import type { LeadStatus } from "@/types/lead";
 import { titleCase } from "@/lib/utils";
 
-const TONE: Record<LeadStatus, "neutral" | "info" | "success" | "brand" | "danger"> = {
+const TONE: Record<LeadStatus, "neutral" | "info" | "success" | "violet" | "danger"> = {
   new: "info",
-  contacted: "brand",
+  contacted: "violet",
   qualified: "success",
   converted: "success",
   rejected: "danger",

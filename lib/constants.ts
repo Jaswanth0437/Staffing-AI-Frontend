@@ -2,11 +2,13 @@ export const APP_NAME = "LeadFlow";
 
 export const NAV_ITEMS = [
   { label: "Dashboard", href: "/dashboard", icon: "LayoutDashboard" },
-  { label: "Jobs", href: "/jobs", icon: "Briefcase" },
+  { label: "Search", href: "/search", icon: "Search" },
+  { label: "Campaigns", href: "/campaigns", icon: "Megaphone" },
   { label: "Leads", href: "/leads", icon: "Users" },
+  { label: "Employees", href: "/employees", icon: "IdCard" },
+  { label: "Emails", href: "/emails", icon: "Mail" },
   { label: "Companies", href: "/companies", icon: "Building2" },
   { label: "Contacts", href: "/contacts", icon: "Contact" },
-  { label: "Campaigns", href: "/campaigns", icon: "Megaphone" },
 ] as const;
 
 export const SETTINGS_NAV_ITEMS = [
@@ -66,12 +68,7 @@ export const LEAD_TYPE_OPTIONS = [
 
 export const LEAD_SOURCE_OPTIONS = ["Apollo", "Manual", "Import"];
 
-export const CAMPAIGN_STATUS_OPTIONS = [
-  "draft",
-  "active",
-  "paused",
-  "completed",
-] as const;
+export const EMPLOYEE_AVAILABILITY_OPTIONS = ["available", "on-bench", "deployed"] as const;
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";

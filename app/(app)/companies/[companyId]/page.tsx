@@ -83,7 +83,7 @@ export default function CompanyDetailsPage({ params }: { params: Promise<{ compa
       />
 
       <Card>
-        <div className="border-b border-border px-5">
+        <div className="border-b border-border px-5 py-3">
           <Tabs
             value={tab}
             onChange={setTab}

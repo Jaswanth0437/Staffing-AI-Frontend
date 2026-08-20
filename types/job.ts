@@ -18,6 +18,8 @@ export interface QualificationCheck {
 
 export interface Job {
   id: string;
+  campaign_id: string;
+  moved_to_lead?: boolean;
   job_posting_id: string;
   job_title: string;
   company_name: string;
@@ -63,9 +65,13 @@ export interface JobSearchParams {
   max_company_size?: number;
 }
 
-export interface JobSearchResult {
+/**
+ * Every search creates a new campaign for whatever new postings it finds.
+ * `campaign` is undefined when the search/recheck turns up nothing new.
+ */
+export interface SearchResult {
+  campaign?: import("./campaign").Campaign;
   jobs: Job[];
-  total: number;
-  qualified: number;
-  rejected: number;
+  newJobsFound: boolean;
+  message?: string;
 }

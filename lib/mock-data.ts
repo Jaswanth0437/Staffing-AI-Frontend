@@ -3,6 +3,7 @@ import type { Contact } from "@/types/contact";
 import type { Job } from "@/types/job";
 import type { Lead } from "@/types/lead";
 import type { Campaign } from "@/types/campaign";
+import type { Employee } from "@/types/employee";
 
 export const mockCompanies: Company[] = [
   {
@@ -243,6 +244,7 @@ export const mockContacts: Contact[] = [
 export const mockJobs: Job[] = [
   {
     id: "job_1",
+    campaign_id: "camp_1",
     job_posting_id: "3812093812",
     job_title: "AI/ML Engineer",
     company_name: "Acme AI",
@@ -278,6 +280,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "job_2",
+    campaign_id: "camp_1",
     job_posting_id: "3812093813",
     job_title: "Senior Platform Engineer",
     company_name: "Nimbus Cloud Systems",
@@ -313,6 +316,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "job_3",
+    campaign_id: "camp_1",
     job_posting_id: "3812093814",
     job_title: "Staff Software Engineer",
     company_name: "Nimbus Cloud Systems",
@@ -347,6 +351,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "job_4",
+    campaign_id: "camp_1",
     job_posting_id: "3812093815",
     job_title: "Backend Engineer",
     company_name: "Bright Ledger Analytics",
@@ -381,6 +386,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "job_5",
+    campaign_id: "camp_1",
     job_posting_id: "3812093816",
     job_title: "Principal Robotics Engineer",
     company_name: "Vertex Robotics Group",
@@ -415,6 +421,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "job_6",
+    campaign_id: "camp_1",
     job_posting_id: "3812093817",
     job_title: "Full Stack Engineer",
     company_name: "Solace HealthTech",
@@ -449,6 +456,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "job_7",
+    campaign_id: "camp_1",
     job_posting_id: "3812093818",
     job_title: "DevOps Engineer",
     company_name: "Solace HealthTech",
@@ -483,6 +491,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "job_8",
+    campaign_id: "camp_1",
     job_posting_id: "3812093819",
     job_title: "Product Designer",
     company_name: "Solace HealthTech",
@@ -517,6 +526,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "job_9",
+    campaign_id: "camp_1",
     job_posting_id: "3812093820",
     job_title: "Data Engineer",
     company_name: "Solace HealthTech",
@@ -551,6 +561,7 @@ export const mockJobs: Job[] = [
   },
   {
     id: "job_10",
+    campaign_id: "camp_1",
     job_posting_id: "3812093821",
     job_title: "Machine Learning Researcher",
     company_name: "Acme AI",
@@ -706,55 +717,77 @@ export const mockLeads: Lead[] = [
 export const mockCampaigns: Campaign[] = [
   {
     id: "camp_1",
-    name: "August AI/ML Outreach",
+    name: "Campaign_20260816_ai-ml-engineer",
+    role_name: "AI/ML Engineer",
+    search_filters: {
+      keyword: "AI/ML Engineer",
+      location: "London",
+      country: "GB",
+      time_range: "Past 24 hours",
+      job_type: "Full-time",
+      experience_level: "Mid-Senior level",
+      remote: "On-site",
+      company: "",
+      location_radius: "25",
+      max_applicants: 99,
+      min_company_size: 50,
+      max_company_size: 10000,
+    },
+    stage: "jobs_review",
     status: "active",
-    leads_count: 42,
-    created_at: "2026-08-01T09:00:00Z",
-    last_activity_at: "2026-08-16T07:00:00Z",
-    subject: "Quick question about your {{job_title}} role",
-    body:
-      "Hi {{first_name}},\n\nI noticed {{company}} is hiring for a {{job_title}} role. We help teams like yours find qualified candidates faster.\n\nWorth a quick chat this week?\n\nBest,\nThe LeadFlow Team",
-    stats: { total: 42, sent: 42, opened: 28, replied: 6, failed: 1 },
-    leads: [
-      { lead_id: "lead_2", name: "Daniel Reyes", company: "Acme AI", email: "daniel.reyes@acme.ai", status: "opened", last_activity: "2026-08-16T07:00:00Z" },
-      { lead_id: "lead_1", name: "Jane Smith", company: "Acme AI", email: "jane.smith@acme.ai", status: "replied", last_activity: "2026-08-15T14:00:00Z" },
-      { lead_id: "lead_3", name: "Priya Chandrasekaran", company: "Nimbus Cloud Systems", email: "priya.c@nimbuscloud.io", status: "sent", last_activity: "2026-08-14T10:00:00Z" },
-    ],
+    created_at: "2026-08-16T05:00:00Z",
+  },
+];
+
+export const mockEmployees: Employee[] = [
+  {
+    id: "emp_1",
+    name: "Asha Rao",
+    role_title: "Senior Java Developer",
+    skills: ["Java", "Spring", "AWS"],
+    experience_years: 6,
+    availability: "available",
+    email: "asha@example.com",
+    summary: "Backend specialist with deep experience shipping high-throughput Java services on AWS.",
   },
   {
-    id: "camp_2",
-    name: "HealthTech Decision Makers",
-    status: "draft",
-    leads_count: 18,
-    created_at: "2026-08-14T09:00:00Z",
-    subject: "Helping {{company}} scale engineering hiring",
-    body:
-      "Hi {{first_name}},\n\nSaw the {{job_title}} opening at {{company}} — congrats on the growth!\n\nWould love to share how we support fast-growing health tech teams.\n\nBest,\nThe LeadFlow Team",
-    stats: { total: 18, sent: 0, opened: 0, replied: 0, failed: 0 },
-    leads: [],
+    id: "emp_2",
+    name: "Miguel Santos",
+    role_title: "React Frontend Engineer",
+    skills: ["React", "TypeScript", "Next.js"],
+    experience_years: 4,
+    availability: "available",
+    email: "miguel@example.com",
+    summary: "Frontend engineer focused on design systems and performance-critical React apps.",
   },
   {
-    id: "camp_3",
-    name: "Q2 Platform Engineers",
-    status: "completed",
-    leads_count: 65,
-    created_at: "2026-05-01T09:00:00Z",
-    last_activity_at: "2026-06-15T09:00:00Z",
-    subject: "Following up on {{job_title}} hiring",
-    body: "Hi {{first_name}}, following up on our previous note.",
-    stats: { total: 65, sent: 65, opened: 40, replied: 12, failed: 2 },
-    leads: [],
+    id: "emp_3",
+    name: "Priya Nair",
+    role_title: "DevOps Engineer",
+    skills: ["Kubernetes", "AWS", "Terraform"],
+    experience_years: 5,
+    availability: "on-bench",
+    email: "priya@example.com",
+    summary: "Infrastructure engineer who has led migrations to Kubernetes at two prior companies.",
   },
   {
-    id: "camp_4",
-    name: "Fintech Founders Outreach",
-    status: "paused",
-    leads_count: 9,
-    created_at: "2026-07-20T09:00:00Z",
-    last_activity_at: "2026-08-01T09:00:00Z",
-    subject: "Quick intro for {{company}}",
-    body: "Hi {{first_name}}, quick intro for {{company}}.",
-    stats: { total: 9, sent: 5, opened: 2, replied: 0, failed: 0 },
-    leads: [],
+    id: "emp_4",
+    name: "Daniel Kim",
+    role_title: "Data Engineer",
+    skills: ["Python", "Spark", "Airflow"],
+    experience_years: 3,
+    availability: "available",
+    email: "daniel@example.com",
+    summary: "Builds and maintains large-scale batch and streaming data pipelines.",
+  },
+  {
+    id: "emp_5",
+    name: "Sara Ahmed",
+    role_title: "QA Automation Engineer",
+    skills: ["Selenium", "Python", "CI/CD"],
+    experience_years: 4,
+    availability: "available",
+    email: "sara@example.com",
+    summary: "Owns test automation strategy and CI/CD pipeline health for product teams.",
   },
 ];

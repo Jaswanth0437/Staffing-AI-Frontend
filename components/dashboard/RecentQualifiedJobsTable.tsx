@@ -18,7 +18,7 @@ export function RecentQualifiedJobsTable({ jobs, loading }: { jobs?: Job[]; load
         title="Recent qualified jobs"
         subtitle="Latest jobs that passed your qualification rules"
         action={
-          <Link href="/jobs" className="focus-ring rounded text-sm font-medium text-brand hover:underline">
+          <Link href="/search" className="focus-ring rounded text-sm font-medium text-brand hover:underline">
             View all
           </Link>
         }

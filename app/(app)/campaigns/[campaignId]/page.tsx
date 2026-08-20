@@ -2,47 +2,54 @@
 
 import { use, useState } from "react";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Card, CardHeader } from "@/components/ui/Card";
+import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
-import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
-import { Modal } from "@/components/ui/Modal";
+import { CampaignStepper } from "@/components/campaigns/CampaignStepper";
+import { CampaignStageBadge } from "@/components/campaigns/CampaignStageBadge";
+import { NameStep } from "@/components/campaigns/steps/NameStep";
+import { JobsReviewStep } from "@/components/campaigns/steps/JobsReviewStep";
+import { LeadConfirmStep } from "@/components/campaigns/steps/LeadConfirmStep";
+import { MatchingStep } from "@/components/campaigns/steps/MatchingStep";
+import { EmailStep } from "@/components/campaigns/steps/EmailStep";
+import { CompletedSummary } from "@/components/campaigns/steps/CompletedSummary";
 import { useToast } from "@/components/ui/Toast";
-import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge";
 import { useCampaign } from "@/hooks/useCampaigns";
-import { sendCampaign } from "@/lib/api";
-import { formatDate, orNotAvailable, titleCase } from "@/lib/utils";
-import { Send, Users } from "lucide-react";
+import { confirmCampaignName } from "@/lib/api";
+import type { CampaignStage } from "@/types/campaign";
 
-const STAT_TONE: Record<string, "neutral" | "brand" | "success" | "info" | "danger"> = {
-  pending: "neutral",
-  sent: "info",
-  opened: "brand",
-  replied: "success",
-  failed: "danger",
+const STEPS = [
+  { label: "Name", value: 1 },
+  { label: "Jobs", value: 2 },
+  { label: "Leads", value: 3 },
+  { label: "Matching", value: 4 },
+  { label: "Email", value: 5 },
+];
+
+const STAGE_STEP: Record<CampaignStage, number> = {
+  name: 1,
+  jobs_review: 2,
+  lead_confirm: 3,
+  matching: 4,
+  email: 5,
+  completed: 5,
 };
 
 export default function CampaignDetailsPage({ params }: { params: Promise<{ campaignId: string }> }) {
   const { campaignId } = use(params);
   const { data: campaign, loading, error, refetch } = useCampaign(campaignId);
   const { toast } = useToast();
-  const [sendOpen, setSendOpen] = useState(false);
-  const [sending, setSending] = useState(false);
+  const [savingName, setSavingName] = useState(false);
 
-  async function handleSend() {
-    setSending(true);
+  async function handleConfirmName(name: string) {
+    setSavingName(true);
     try {
-      await sendCampaign(campaignId);
-      toast({ tone: "success", title: "Campaign sent", description: "Emails are queued for delivery by the backend." });
+      await confirmCampaignName(campaignId, name);
       refetch();
     } catch (err) {
-      toast({ tone: "error", title: "Failed to send campaign", description: err instanceof Error ? err.message : undefined });
+      toast({ tone: "error", title: "Failed to save name", description: err instanceof Error ? err.message : undefined });
     } finally {
-      setSending(false);
-      setSendOpen(false);
+      setSavingName(false);
     }
   }
 
@@ -57,8 +64,6 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ camp
     );
   }
 
-  const stats = campaign.stats ?? { total: campaign.leads_count, sent: 0, opened: 0, replied: 0, failed: 0 };
-
   return (
     <div>
       <PageHeader
@@ -66,97 +71,26 @@ export default function CampaignDetailsPage({ params }: { params: Promise<{ camp
         title={
           <span className="flex flex-wrap items-center gap-3">
             {campaign.name}
-            <CampaignStatusBadge status={campaign.status} />
+            <CampaignStageBadge stage={campaign.stage} />
           </span>
         }
-        subtitle={`Created ${formatDate(campaign.created_at)}`}
-        actions={
-          (campaign.status === "draft" || campaign.status === "paused") && (
-            <Button icon={<Send className="h-4 w-4" />} onClick={() => setSendOpen(true)}>
-              Send Campaign
-            </Button>
-          )
-        }
+        subtitle={`Role: ${campaign.role_name}`}
       />
 
-      <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        <StatTile label="Total Leads" value={stats.total} />
-        <StatTile label="Sent" value={stats.sent} />
-        <StatTile label="Opened" value={stats.opened} />
-        <StatTile label="Replied" value={stats.replied} />
-        <StatTile label="Failed" value={stats.failed} />
-      </div>
+      {campaign.stage !== "completed" && (
+        <Card className="mb-6 px-5 py-4">
+          <CampaignStepper steps={STEPS} current={STAGE_STEP[campaign.stage]} />
+        </Card>
+      )}
 
       <Card>
-        <CardHeader title="Leads" subtitle="Delivery status for each lead in this campaign." />
-        {!campaign.leads || campaign.leads.length === 0 ? (
-          <EmptyState
-            icon={<Users className="h-5 w-5" />}
-            title="No leads in this campaign yet"
-            description="Leads will appear here once the campaign is sent."
-          />
-        ) : (
-          <TableContainer>
-            <Table>
-              <THead>
-                <TR>
-                  <TH>Name</TH>
-                  <TH>Company</TH>
-                  <TH>Email</TH>
-                  <TH>Status</TH>
-                  <TH>Last Activity</TH>
-                </TR>
-              </THead>
-              <TBody>
-                {campaign.leads.map((lead) => (
-                  <TR key={lead.lead_id}>
-                    <TD className="font-medium text-foreground">{lead.name}</TD>
-                    <TD className="text-muted-foreground">{lead.company}</TD>
-                    <TD className="text-muted-foreground">{orNotAvailable(lead.email)}</TD>
-                    <TD>
-                      <Badge tone={STAT_TONE[lead.status]} dot>
-                        {titleCase(lead.status)}
-                      </Badge>
-                    </TD>
-                    <TD className="text-muted-foreground">
-                      {lead.last_activity ? formatDate(lead.last_activity) : "—"}
-                    </TD>
-                  </TR>
-                ))}
-              </TBody>
-            </Table>
-          </TableContainer>
-        )}
+        {campaign.stage === "name" && <NameStep campaign={campaign} onNext={handleConfirmName} loading={savingName} />}
+        {campaign.stage === "jobs_review" && <JobsReviewStep campaignId={campaignId} onAdvanced={refetch} />}
+        {campaign.stage === "lead_confirm" && <LeadConfirmStep campaignId={campaignId} onAdvanced={refetch} />}
+        {campaign.stage === "matching" && <MatchingStep campaignId={campaignId} onAdvanced={refetch} />}
+        {campaign.stage === "email" && <EmailStep campaignId={campaignId} onSent={refetch} />}
+        {campaign.stage === "completed" && <CompletedSummary campaign={campaign} />}
       </Card>
-
-      <Modal
-        open={sendOpen}
-        onClose={() => setSendOpen(false)}
-        title="Send campaign"
-        footer={
-          <>
-            <Button variant="outline" onClick={() => setSendOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSend} loading={sending} icon={<Send className="h-4 w-4" />}>
-              Send Now
-            </Button>
-          </>
-        }
-      >
-        <p className="text-sm text-muted-foreground">
-          This will queue outreach emails for all {stats.total} leads in this campaign. This action cannot be undone.
-        </p>
-      </Modal>
-    </div>
-  );
-}
-
-function StatTile({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-xl border border-border bg-surface p-4">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-1.5 text-xl font-semibold tracking-tight text-foreground">{value}</p>
     </div>
   );
 }
