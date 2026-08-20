@@ -1,0 +1,32 @@
+
+> staffing_frontend@0.1.0 dev
+> next dev
+
+▲ Next.js 16.3.1 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.61:3000
+✓ Ready in 1485ms
+⚠ Warning: Next.js ignored package-lock.json in C:\Users\jaswa\Music\Hackfest folder\staffing_frontend because it is outside the current Git repository (C:\Users\jaswa\Music\Hackfest folder\staffing_frontend\staffing_frontend).
+ To use this directory, set `turbopack.root` in your Next.js config.
+
+✓ Running next.config.mjs took 64ms
+
+○ Compiling /login ...
+ GET /login 200 in 5.4s (next.js: 4.6s, application-code: 791ms)
+ GET /campaigns 200 in 5.4s (next.js: 4.7s, application-code: 692ms)
+ GET /login 200 in 106ms (next.js: 16ms, application-code: 90ms)
+ GET /login 200 in 107ms (next.js: 8ms, application-code: 99ms)
+ GET /login 200 in 95ms (next.js: 8ms, application-code: 87ms)
+[browser] Image with src "/Winlogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /campaigns 200 in 166ms (next.js: 15ms, application-code: 151ms)
+[browser] Image with src "/Winlogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /dashboard 200 in 1213ms (next.js: 1152ms, application-code: 61ms)
+ GET / 307 in 962ms (next.js: 836ms, application-code: 126ms)
+ GET /login 200 in 132ms (next.js: 11ms, application-code: 120ms)
+[browser] Image with src "/Winlogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+ GET /dashboard 200 in 70ms (next.js: 11ms, application-code: 59ms)
+ GET /dashboard 200 in 61ms (next.js: 9ms, application-code: 52ms)
+✓ Compiled in 198ms
+ GET /dashboard 200 in 76ms (next.js: 19ms, application-code: 57ms)
+ GET /dashboard 200 in 205ms (next.js: 21ms, application-code: 185ms)
+[browser] Image with src "/Winlogo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes

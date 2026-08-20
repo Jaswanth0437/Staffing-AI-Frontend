@@ -6,7 +6,7 @@ const inter = Inter({
   subsets: ["latin"]
 });
 export const metadata = {
-  title: "LeadFlow — Lead Management CRM",
+  title: "Winfomi HireX — Lead Management CRM",
   description: "Discover, qualify, and manage leads sourced from LinkedIn job postings."
 };
 export default function RootLayout({

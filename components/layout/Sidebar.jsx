@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Building2, ChevronDown, Contact as ContactIcon, IdCard, LayoutDashboard, Mail, Megaphone, Search, Settings, Users, PanelLeftClose, PanelLeftOpen } from "lucide-react";
@@ -23,8 +24,8 @@ export function Sidebar({
   const pathname = usePathname();
   return <nav aria-label="Primary" className={cn("flex h-full flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] transition-[width] duration-200", collapsed ? "w-[68px]" : "w-64")}>
       <div className="flex h-14 items-center gap-2 border-b border-[var(--sidebar-border)] px-4">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand text-sm font-bold text-white">
-          L
+        <div className="relative h-7 w-7 shrink-0">
+          <Image src="/Winlogo.png" alt={APP_NAME} fill className="object-contain" priority />
         </div>
         {!collapsed && <span className="truncate text-sm font-semibold tracking-tight text-foreground">
             {APP_NAME}

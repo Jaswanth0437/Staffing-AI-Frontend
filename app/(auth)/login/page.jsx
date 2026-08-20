@@ -1,88 +1,94 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { APP_NAME } from "@/lib/constants";
+const PLATFORM_MODULES = [{
+  title: "Campaigns & Job Discovery",
+  description: "Pull qualified roles from Apify and triage them automatically.",
+  live: true
+}, {
+  title: "Lead Resolution",
+  description: "Job poster → HR contact → company-level fallback, every time.",
+  live: true
+}, {
+  title: "Employee Matching",
+  description: "AI-ranked bench matches against every qualified role.",
+  live: true
+}, {
+  title: "Email Outreach",
+  description: "Generate, edit, and send outreach copy with zero PII leakage.",
+  live: true
+}, {
+  title: "Analytics Dashboard",
+  description: "Pipeline health and conversion tracking across campaigns.",
+  live: false
+}, {
+  title: "CRM Integrations",
+  description: "Sync resolved leads and contacts to your existing CRM.",
+  live: false
+}];
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    if (!email || !password) {
-      setError("Please enter both email and password.");
-      return;
-    }
+  function handleMicrosoftLogin() {
     setLoading(true);
-    // TODO: replace with real authentication call to the backend
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/dashboard");
-    }, 800);
+    // TODO: replace with real Microsoft OAuth redirect
+    setTimeout(() => router.push("/dashboard"), 900);
   }
-  return <div className="w-full max-w-sm">
-      <div className="mb-8 flex flex-col items-center text-center">
-        <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-base font-bold text-white">
-          L
+  return <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+      <div className="flex flex-col items-center justify-center gap-10 px-6 py-16">
+        <div className="flex w-full max-w-sm flex-col items-center text-center">
+          <div className="relative mb-6 h-16 w-16">
+            <Image src="/Winlogo.png" alt={APP_NAME} fill className="object-contain" priority />
+          </div>
+          <h1 className="text-2xl font-semibold text-foreground">Welcome to {APP_NAME}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Continue with Microsoft to access your workspace.</p>
+
+          <Button variant="secondary" className="mt-8 h-11 w-full justify-center gap-3 text-base" onClick={handleMicrosoftLogin} loading={loading}>
+            {!loading && <MicrosoftIcon />}
+            Continue with Microsoft
+            {!loading && <ArrowRight className="h-4 w-4" />}
+          </Button>
         </div>
-        <h1 className="text-xl font-semibold text-foreground">Welcome back</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Sign in to manage your leads and campaigns.
+        <p className="text-xs text-muted-foreground">© 2026 Winfomi. All rights reserved.</p>
+      </div>
+
+      <div className="hidden flex-col justify-center gap-8 bg-gradient-to-br from-brand-soft via-white to-brand-soft px-12 py-16 lg:flex">
+        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-brand/20 bg-white px-3 py-1 text-xs font-medium text-brand">
+          # The {APP_NAME} Platform
+        </span>
+        <h2 className="max-w-md text-4xl font-semibold leading-tight text-foreground">
+          Turn job postings into pipeline, automatically.
+        </h2>
+        <p className="max-w-md text-sm text-muted-foreground">
+          Discover roles, resolve the right contact, match your bench, and send outreach — one platform, powered by AI at every stage.
+        </p>
+
+        <div className="grid grid-cols-2 gap-4">
+          {PLATFORM_MODULES.map(module => <div key={module.title} className="relative rounded-xl border border-border bg-white p-4 shadow-sm">
+              {!module.live && <span className="absolute right-3 top-3 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  Soon
+                </span>}
+              <p className="text-sm font-semibold text-foreground">{module.title}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{module.description}</p>
+            </div>)}
+        </div>
+
+        <p className="text-xs text-muted-foreground">
+          Campaigns, Leads, Employees, and Emails are live today — more modules on the way.
         </p>
       </div>
-
-      <div className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-        {error && <div className="mb-4 flex items-start gap-2 rounded-lg border border-danger/20 bg-danger-soft px-3 py-2.5 text-sm text-danger">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>{error}</span>
-          </div>}
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-          <Input label="Email" type="email" name="email" autoComplete="email" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} required />
-          <Input label="Password" type="password" name="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required />
-
-          <div className="flex items-center justify-between">
-            <Checkbox label="Remember me" name="remember" />
-            <Link href="/forgot-password" className="focus-ring rounded text-sm font-medium text-brand hover:underline">
-              Forgot password?
-            </Link>
-          </div>
-
-          <Button type="submit" className="w-full" loading={loading}>
-            Sign in
-          </Button>
-        </form>
-
-        <div className="my-5 flex items-center gap-3">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground">OR</span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-
-        <Button variant="secondary" className="w-full" onClick={() => setLoading(true)} type="button">
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon />}
-          Continue with Google
-        </Button>
-      </div>
-
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
-        <span className="font-medium text-brand">Contact your administrator</span>
-      </p>
     </div>;
 }
-function GoogleIcon() {
-  return <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z" />
-      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z" />
-      <path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29A11.96 11.96 0 000 12c0 1.93.46 3.76 1.29 5.38l3.98-3.09z" />
-      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.94 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+function MicrosoftIcon() {
+  return <svg className="h-4 w-4" viewBox="0 0 23 23" aria-hidden="true">
+      <rect x="1" y="1" width="10" height="10" fill="#F25022" />
+      <rect x="12" y="1" width="10" height="10" fill="#7FBA00" />
+      <rect x="1" y="12" width="10" height="10" fill="#00A4EF" />
+      <rect x="12" y="12" width="10" height="10" fill="#FFB900" />
     </svg>;
 }

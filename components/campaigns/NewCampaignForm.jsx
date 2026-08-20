@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { RotateCcw, Search } from "lucide-react";
+import { Plus, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { COUNTRY_OPTIONS, EXPERIENCE_LEVEL_OPTIONS, JOB_TYPE_OPTIONS, REMOTE_OPTIONS, TIME_RANGE_OPTIONS } from "@/lib/constants";
-export const DEFAULT_SEARCH_PARAMS = {
+export const DEFAULT_CAMPAIGN_PARAMS = {
   keyword: "AI/ML Engineer",
   location: "London",
   country: "GB",
@@ -20,11 +20,11 @@ export const DEFAULT_SEARCH_PARAMS = {
   min_company_size: 50,
   max_company_size: 10000
 };
-export function JobSearchForm({
-  onSearch,
+export function NewCampaignForm({
+  onCreate,
   loading
 }) {
-  const [params, setParams] = useState(DEFAULT_SEARCH_PARAMS);
+  const [params, setParams] = useState(DEFAULT_CAMPAIGN_PARAMS);
   function update(key, value) {
     setParams(prev => ({
       ...prev,
@@ -33,21 +33,21 @@ export function JobSearchForm({
   }
   function handleSubmit(e) {
     e.preventDefault();
-    onSearch(params);
+    onCreate(params);
   }
   function handleReset() {
-    setParams(DEFAULT_SEARCH_PARAMS);
+    setParams(DEFAULT_CAMPAIGN_PARAMS);
   }
   return <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-surface p-5 shadow-sm">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <Input label="Keyword" value={params.keyword} onChange={e => update("keyword", e.target.value)} placeholder="e.g. AI/ML Engineer" />
+        <Input label="Role" value={params.keyword} onChange={e => update("keyword", e.target.value)} placeholder="e.g. AI/ML Engineer" />
         <Input label="Location" value={params.location} onChange={e => update("location", e.target.value)} placeholder="e.g. London" />
         <Select label="Country" value={params.country} onChange={e => update("country", e.target.value)} options={COUNTRY_OPTIONS} />
-        <Select label="Time Range" value={params.time_range} onChange={e => update("time_range", e.target.value)} options={TIME_RANGE_OPTIONS.map(v => ({
+        <Select label="Timeframe" value={params.time_range} onChange={e => update("time_range", e.target.value)} options={TIME_RANGE_OPTIONS.map(v => ({
         label: v,
         value: v
       }))} />
-        <Select label="Job Type" value={params.job_type} onChange={e => update("job_type", e.target.value)} options={JOB_TYPE_OPTIONS.map(v => ({
+        <Select label="Employment Type" value={params.job_type} onChange={e => update("job_type", e.target.value)} options={JOB_TYPE_OPTIONS.map(v => ({
         label: v,
         value: v
       }))} />
@@ -55,7 +55,7 @@ export function JobSearchForm({
         label: v,
         value: v
       }))} />
-        <Select label="Remote" value={params.remote} onChange={e => update("remote", e.target.value)} options={REMOTE_OPTIONS.map(v => ({
+        <Select label="Work Mode" value={params.remote} onChange={e => update("remote", e.target.value)} options={REMOTE_OPTIONS.map(v => ({
         label: v,
         value: v
       }))} />
@@ -67,8 +67,8 @@ export function JobSearchForm({
       </div>
 
       <div className="mt-5 flex items-center gap-2">
-        <Button type="submit" loading={loading} icon={<Search className="h-4 w-4" />}>
-          Search Jobs
+        <Button type="submit" loading={loading} icon={<Plus className="h-4 w-4" />}>
+          Create Campaign
         </Button>
         <Button type="button" variant="outline" onClick={handleReset} icon={<RotateCcw className="h-4 w-4" />}>
           Reset
