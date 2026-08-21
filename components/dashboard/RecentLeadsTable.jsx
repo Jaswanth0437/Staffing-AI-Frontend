@@ -12,11 +12,11 @@ export function RecentLeadsTable({
 }) {
   const recent = leads?.slice(0, 5);
   return <Card>
-      <CardHeader title="Recent leads" subtitle="Newest leads added to your CRM" action={<Link href="/leads" className="focus-ring rounded text-sm font-medium text-brand hover:underline">
-            View all
+      <CardHeader title="Recent Leads" subtitle="Newest Leads Added To Your CRM" action={<Link href="/leads" className="focus-ring rounded text-sm font-medium text-brand hover:underline">
+            View All
           </Link>} />
       {loading && <TableSkeleton rows={5} cols={7} />}
-      {!loading && recent && recent.length === 0 && <EmptyState icon={<Users className="h-5 w-5" />} title="No leads yet" description="Qualified jobs will automatically generate leads here." />}
+      {!loading && recent && recent.length === 0 && <EmptyState icon={<Users className="h-5 w-5" />} title="No Leads Yet" description="Qualified Jobs Will Automatically Generate Leads Here." />}
       {!loading && recent && recent.length > 0 && <TableContainer>
           <Table>
             <THead>

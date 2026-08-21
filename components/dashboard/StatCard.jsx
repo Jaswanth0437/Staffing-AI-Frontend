@@ -29,7 +29,7 @@ export function StatCard({
             {positive ? <ArrowUpRight className="h-3.5 w-3.5" /> : <ArrowDownRight className="h-3.5 w-3.5" />}
             {Math.abs(change)}%
           </span>
-          <span className="text-muted-foreground">vs last week</span>
+          <span className="text-muted-foreground">Vs Last Week</span>
         </div>}
     </Card>;
 }

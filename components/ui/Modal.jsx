@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDelayedUnmount } from "@/hooks/useDelayedUnmount";
 export function Modal({
   open,
   onClose,
@@ -11,6 +12,7 @@ export function Modal({
   footer,
   size = "md"
 }) {
+  const [shouldRender, closing] = useDelayedUnmount(open, 150);
   useEffect(() => {
     if (!open) return;
     const onKey = e => {
@@ -23,15 +25,15 @@ export function Modal({
       document.body.style.overflow = "";
     };
   }, [open, onClose]);
-  if (!open) return null;
+  if (!shouldRender) return null;
   const sizeClass = {
     sm: "max-w-sm",
     md: "max-w-lg",
     lg: "max-w-2xl"
   }[size];
   return <div role="dialog" aria-modal="true" aria-labelledby="modal-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="animate-fade-in absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-      <div className={cn("animate-scale-in relative z-10 w-full rounded-2xl border border-border bg-surface shadow-2xl", sizeClass)}>
+      <div className={cn("absolute inset-0 bg-black/40", closing ? "animate-fade-out" : "animate-fade-in")} onClick={onClose} aria-hidden="true" />
+      <div className={cn("relative z-10 w-full rounded-2xl border border-border bg-surface shadow-2xl", closing ? "animate-scale-out" : "animate-scale-in", sizeClass)}>
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 id="modal-title" className="text-sm font-semibold text-foreground">
             {title}
