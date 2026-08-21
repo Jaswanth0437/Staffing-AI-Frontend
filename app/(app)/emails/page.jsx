@@ -12,7 +12,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { EmailDetailModal } from "@/components/emails/EmailDetailModal";
 import { useEmails } from "@/hooks/useEmails";
-import { formatDateTime, orNotAvailable } from "@/lib/utils";
+import { formatDateTime, orNotAvailable, titleCase } from "@/lib/utils";
 const STATUS_TONE = {
   draft: "neutral",
   sent: "success",
@@ -35,26 +35,27 @@ export default function EmailsPage() {
     return emails.filter(e => `${e.recipient ?? ""} ${e.subject ?? ""}`.toLowerCase().includes(q));
   }, [emails, search]);
 
-  return <div>
+  return <div className="flex h-full flex-col">
       <PageHeader title="Emails" subtitle="Every outreach email drafted or sent across all campaigns." />
 
       {error && <ErrorState description={error} onRetry={refetch} />}
 
-      {!error && <Card className="overflow-hidden">
-          <div className="border-b border-border px-5 py-4">
+      {!error && <Card className="flex flex-1 min-h-[34rem] flex-col overflow-hidden">
+          <div className="shrink-0 border-b border-border px-5 py-4">
             <div className="relative max-w-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search emails..." aria-label="Search emails" title="Search emails" className="focus-ring h-9 w-full rounded-lg border border-border-strong bg-white pl-9 pr-3 text-sm placeholder:text-muted-foreground" />
             </div>
           </div>
 
+          <div className="flex flex-1 min-h-0 flex-col">
           {loading && <TableSkeleton rows={5} cols={4} />}
 
-          {!loading && (!emails || emails.length === 0) && <EmptyState icon={<Mail className="h-5 w-5" />} title="No emails yet" description="Emails will appear here once a lead's outreach copy has been generated." />}
+          {!loading && (!emails || emails.length === 0) && <div className="flex flex-1 items-center justify-center"><EmptyState icon={<Mail className="h-5 w-5" />} title="No emails yet" description="Emails will appear here once a lead's outreach copy has been generated." /></div>}
 
-          {!loading && emails && emails.length > 0 && filtered.length === 0 && <EmptyState icon={<Mail className="h-5 w-5" />} title="No emails found" description="Try adjusting your search." />}
+          {!loading && emails && emails.length > 0 && filtered.length === 0 && <div className="flex flex-1 items-center justify-center"><EmptyState icon={<Mail className="h-5 w-5" />} title="No emails found" description="Try adjusting your search." /></div>}
 
-          {!loading && filtered.length > 0 && <TableContainer className="max-h-[20rem] overflow-y-auto">
+          {!loading && filtered.length > 0 && <TableContainer className="flex-1 min-h-0 overflow-y-auto">
               <Table>
                 <THead className="sticky top-0 z-10 bg-gray-50">
                   <TR>
@@ -71,7 +72,7 @@ export default function EmailsPage() {
                       <TD className="text-muted-foreground">{orNotAvailable(email.subject)}</TD>
                       <TD>
                         <Badge tone={STATUS_TONE[email.status]} dot>
-                          {email.status}
+                          {titleCase(email.status)}
                         </Badge>
                       </TD>
                       <TD className="text-muted-foreground">{email.sent_at ? formatDateTime(email.sent_at) : "—"}</TD>
@@ -85,6 +86,7 @@ export default function EmailsPage() {
                 </TBody>
               </Table>
             </TableContainer>}
+          </div>
         </Card>}
 
       <EmailDetailModal email={selected} onClose={() => setSelected(null)} />

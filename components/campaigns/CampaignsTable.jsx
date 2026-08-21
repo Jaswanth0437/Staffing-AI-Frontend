@@ -12,9 +12,11 @@ export function CampaignsTable({
   onDeleteRequest
 }) {
   if (campaigns.length === 0) {
-    return <EmptyState icon={<Megaphone className="h-5 w-5" />} title="No campaigns found" description="Create your first campaign to start pulling jobs from Apify." />;
+    return <div className="flex flex-1 items-center justify-center">
+        <EmptyState icon={<Megaphone className="h-5 w-5" />} title="No campaigns found" description="Create your first campaign to start pulling jobs from Apify." />
+      </div>;
   }
-  return <TableContainer className="max-h-[20rem] overflow-y-auto">
+  return <TableContainer className="flex-1 min-h-0 overflow-y-auto">
       <Table>
         <THead className="sticky top-0 z-10 bg-gray-50">
           <TR>

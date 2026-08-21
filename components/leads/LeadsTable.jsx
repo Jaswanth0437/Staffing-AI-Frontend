@@ -10,9 +10,11 @@ export function LeadsTable({
   leads
 }) {
   if (leads.length === 0) {
-    return <EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="Leads appear here once a qualified job is turned into a lead from a campaign." />;
+    return <div className="flex flex-1 items-center justify-center">
+        <EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="Leads appear here once a qualified job is turned into a lead from a campaign." />
+      </div>;
   }
-  return <TableContainer className="max-h-[20rem] overflow-y-auto">
+  return <TableContainer className="flex-1 min-h-0 overflow-y-auto">
       <Table>
         <THead className="sticky top-0 z-10 bg-gray-50">
           <TR>

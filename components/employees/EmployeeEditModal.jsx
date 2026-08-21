@@ -34,7 +34,7 @@ function EmployeeEditForm({ employee, onSave }) {
 }
 
 export function EmployeeEditModal({ employee, onClose, onSave, saving }) {
-  return <Modal open={!!employee} onClose={onClose} title="Edit Employee" footer={<>
+  return <Modal open={!!employee} onClose={onClose} title="Edit Resource" footer={<>
         <Button variant="outline" onClick={onClose} disabled={saving}>
           Cancel
         </Button>

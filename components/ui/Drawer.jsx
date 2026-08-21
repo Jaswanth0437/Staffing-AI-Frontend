@@ -26,8 +26,8 @@ export function Drawer({
   }, [open, onClose]);
   if (!open) return null;
   return <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-      <div className={cn("relative z-10 flex h-full w-full flex-col bg-surface shadow-xl", width, side === "right" ? "ml-auto" : "mr-auto")}>
+      <div className="animate-fade-in absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
+      <div className={cn("relative z-10 flex h-full w-full flex-col bg-surface shadow-xl", width, side === "right" ? "animate-panel-right ml-auto" : "animate-panel-left mr-auto")}>
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="text-sm font-semibold text-foreground">{title}</h2>
           <button onClick={onClose} title="Close panel" aria-label="Close panel" className="focus-ring rounded-lg p-1 text-muted-foreground hover:bg-gray-100">

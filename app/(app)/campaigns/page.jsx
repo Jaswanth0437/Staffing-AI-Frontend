@@ -80,7 +80,7 @@ export default function CampaignsPage() {
     }
   }
 
-  return <div>
+  return <div className="flex h-full min-h-0 flex-col">
       <PageHeader title="Campaigns" subtitle="Create a campaign to pull jobs from Apify, then work each job through to a lead and an email." actions={<Link href="/campaigns/new" title="New campaign" className="focus-ring inline-flex h-9 items-center gap-2 rounded-lg bg-brand px-4 text-sm font-medium text-white shadow-sm hover:bg-brand-hover">
             <Plus className="h-4 w-4" />
             New Campaign
@@ -88,16 +88,18 @@ export default function CampaignsPage() {
 
       {error && <ErrorState description={error} onRetry={refetch} />}
 
-      {!error && <Card className="overflow-hidden">
-          <div className="border-b border-border px-5 py-4">
+      {!error && <Card className="flex flex-1 min-h-[34rem] flex-col overflow-hidden">
+          <div className="shrink-0 border-b border-border px-5 py-4">
             <div className="relative max-w-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search campaigns..." aria-label="Search campaigns" title="Search campaigns" className="focus-ring h-9 w-full rounded-lg border border-border-strong bg-white pl-9 pr-3 text-sm placeholder:text-muted-foreground" />
             </div>
           </div>
 
-          {loading && <TableSkeleton rows={4} cols={6} />}
-          {!loading && <CampaignsTable campaigns={filtered} recheckingId={rechecking ? recheckTarget?.id : null} onRecheckRequest={setRecheckTarget} onDeleteRequest={setDeleteTarget} />}
+          <div className="flex flex-1 min-h-0 flex-col">
+            {loading && <TableSkeleton rows={4} cols={6} />}
+            {!loading && <CampaignsTable campaigns={filtered} recheckingId={rechecking ? recheckTarget?.id : null} onRecheckRequest={setRecheckTarget} onDeleteRequest={setDeleteTarget} />}
+          </div>
         </Card>}
 
       <ConfirmDialog open={!!recheckTarget} title="Recheck Campaign" description={`Fetch the latest postings for "${recheckTarget?.name}"? Jobs already on file are kept as-is — only genuinely new postings are added and tagged "New".`} confirmLabel="Recheck" loading={rechecking} onConfirm={handleRecheck} onClose={() => setRecheckTarget(null)} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Briefcase, Loader2, RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -18,14 +18,41 @@ import { CampaignStatusBadge } from "@/components/campaigns/CampaignStatusBadge"
 import { QualificationBadge } from "@/components/jobs/QualificationBadge";
 import { useCampaign, useCampaignJobs } from "@/hooks/useCampaigns";
 import { recheckCampaign } from "@/lib/api";
-import { formatApplicants, formatDateTime, orNotAvailable } from "@/lib/utils";
+import { JOB_SOURCE_OPTIONS } from "@/lib/constants";
+import { formatApplicants, formatDateTime, orNotAvailable, titleCase } from "@/lib/utils";
 
 // search_criteria mixes free-text (job_role, location, company — already
 // display-ready as the user typed them) with our internal snake_case tokens
-// (employment_type, work_mode) — this only needs to fix up the latter.
-function displayCriteriaValue(value) {
+// (employment_type, work_mode, job_source) — this only needs to fix up the
+// latter. job_source is special-cased since "linkedin" needs its real
+// mid-word capital, not the generic first-letter-only transform.
+const JOB_SOURCE_LABELS = Object.fromEntries(JOB_SOURCE_OPTIONS.map(o => [o.value, o.label]));
+function displayCriteriaValue(value, key) {
   if (!value) return undefined;
+  if (key === "job_source") return JOB_SOURCE_LABELS[value] ?? value;
   return String(value).replace(/_/g, " ").replace(/^./, c => c.toUpperCase());
+}
+
+// campaign.last_run_summary (set by the backend after every search/recheck)
+// is what tells "Apify genuinely found nothing" apart from "Apify found
+// plenty, the post-fetch filters just dropped all of it" — without it, both
+// look identical: an empty jobs list with no explanation. See job_filters.py
+// for where the reason categories below come from.
+const FILTER_REASON_LABELS = {
+  employment_type: "Employment Type",
+  work_mode: "Work Mode",
+  company: "Company"
+};
+function buildJobsEmptyDescription(summary) {
+  if (!summary) return undefined;
+  const { fetched = 0, reasons = {}, errors = {} } = summary;
+  const errorSentences = Object.entries(errors).map(([source, message]) => `${JOB_SOURCE_LABELS[source] ?? titleCase(source)} search failed: ${message}`);
+  if (fetched === 0) {
+    return errorSentences.length ? errorSentences.join(" ") : "Apify found no postings matching this search.";
+  }
+  const reasonParts = Object.entries(reasons).filter(([, count]) => count > 0).map(([category, count]) => `${count} didn't match ${FILTER_REASON_LABELS[category] ?? category}`);
+  const sentences = [`Apify found ${fetched} posting${fetched === 1 ? "" : "s"}, but all were filtered out before qualification${reasonParts.length ? " — " + reasonParts.join(", ") + "." : "."}`];
+  return sentences.concat(errorSentences).join(" ");
 }
 
 const POLLING_STATUSES = new Set(["pending", "running"]);
@@ -34,7 +61,7 @@ const CRITERIA_FIELDS = [{
   label: "Job Role"
 }, {
   key: "location",
-  label: "Location"
+  label: "City"
 }, {
   key: "country",
   label: "Country"
@@ -53,6 +80,9 @@ const CRITERIA_FIELDS = [{
 }, {
   key: "posting_timeframe",
   label: "Posting Timeframe"
+}, {
+  key: "job_source",
+  label: "Job Source"
 }];
 
 export default function CampaignDetailsPage({
@@ -71,15 +101,18 @@ export default function CampaignDetailsPage({
     refetch
   } = useCampaign(campaignId);
   const [tab, setTab] = useState("all");
+  // Always fetch the full unfiltered list — needed to show a count on every
+  // tab, not just the active one — and filter to the active tab client-side.
   const {
     data: jobs,
     loading: jobsLoading,
     refetch: refetchJobs
-  } = useCampaignJobs(campaignId, tab === "all" ? undefined : tab);
+  } = useCampaignJobs(campaignId);
   const [rechecking, setRechecking] = useState(false);
   const [confirmRecheck, setConfirmRecheck] = useState(false);
 
   const isRunning = campaign && POLLING_STATUSES.has(campaign.status);
+  const wasRunning = useRef(false);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -89,6 +122,42 @@ export default function CampaignDetailsPage({
     }, 2000);
     return () => clearTimeout(timer);
   }, [isRunning, campaign, refetch, refetchJobs]);
+
+  // Polling above stops the instant `isRunning` goes false, but that alone
+  // gives no feedback on what a completed run actually found — surface it
+  // as a toast the moment a run we were watching finishes, rather than
+  // leaving the user to guess from the (uncounted) tabs which changed.
+  useEffect(() => {
+    if (isRunning) {
+      wasRunning.current = true;
+      return;
+    }
+    if (!wasRunning.current || !campaign) return;
+    wasRunning.current = false;
+    if (campaign.status === "failed") {
+      toast({
+        tone: "error",
+        title: "Recheck failed",
+        description: "The job search failed — see Recent Activity for details."
+      });
+      return;
+    }
+    const newCount = (jobs ?? []).filter(j => j.is_new).length;
+    let description = "No new postings since the last check.";
+    if (newCount > 0) {
+      description = `${newCount} new job${newCount === 1 ? "" : "s"} found and qualified.`;
+    } else if (campaign.last_run_summary?.fetched > 0) {
+      // Fetched something but nothing new landed — could be all-duplicates,
+      // all-filtered, or both; buildJobsEmptyDescription's fuller breakdown
+      // is already visible on the page itself once this toast fades.
+      description = `Found ${campaign.last_run_summary.fetched} posting${campaign.last_run_summary.fetched === 1 ? "" : "s"}, but all were filtered out or already on file.`;
+    }
+    toast({
+      tone: "success",
+      title: "Recheck complete",
+      description
+    });
+  }, [isRunning, campaign, jobs, toast]);
 
   async function handleRecheck() {
     setRechecking(true);
@@ -121,8 +190,15 @@ export default function CampaignDetailsPage({
       </div>;
   }
   const allJobs = jobs ?? [];
+  const displayedJobs = tab === "all" ? allJobs : allJobs.filter(j => j.status === tab);
+  const tabCounts = {
+    all: allJobs.length,
+    qualified: allJobs.filter(j => j.status === "qualified").length,
+    rejected: allJobs.filter(j => j.status === "rejected").length,
+    pending: allJobs.filter(j => j.status === "pending").length
+  };
   const criteria = campaign.search_criteria ?? {};
-  return <div>
+  return <div className="flex h-full flex-col">
       <PageHeader breadcrumbs={[{
       label: "Campaigns",
       href: "/campaigns"
@@ -142,50 +218,55 @@ export default function CampaignDetailsPage({
 
       <ConfirmDialog open={confirmRecheck} title="Recheck Campaign" description={'Fetch the latest postings for this requirement? Jobs already on file are kept as-is — only genuinely new postings are added and tagged "New".'} confirmLabel="Recheck" loading={rechecking} onConfirm={handleRecheck} onClose={() => setConfirmRecheck(false)} />
 
-      {isRunning && <Card className="mb-6 flex items-center gap-3 px-5 py-4">
+      {isRunning && <Card className="mb-6 shrink-0 flex items-center gap-3 px-5 py-4">
           <Loader2 className="h-4 w-4 animate-spin text-brand" />
           <p className="text-sm text-muted-foreground">
             Discovering and qualifying jobs from Apify — this page updates automatically.
           </p>
         </Card>}
 
-      <Card className="mb-6">
+      <Card className="mb-6 shrink-0">
         <CardHeader title="Search Criteria" subtitle="What this campaign searches for — set at creation, not editable here." />
         <CardBody>
           <dl className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
             {CRITERIA_FIELDS.map(field => <div key={field.key}>
                 <dt className="text-xs text-muted-foreground">{field.label}</dt>
-                <dd className="mt-0.5 text-sm font-medium text-foreground">{orNotAvailable(displayCriteriaValue(criteria[field.key]))}</dd>
+                <dd className="mt-0.5 text-sm font-medium text-foreground">{orNotAvailable(displayCriteriaValue(criteria[field.key], field.key))}</dd>
               </div>)}
           </dl>
         </CardBody>
       </Card>
 
-      <Card>
+      <Card className="flex flex-1 min-h-[34rem] flex-col">
         <CardHeader title="Jobs" subtitle="Jobs pulled from Apify for this campaign. Open a job to see its AI qualification reason and create a lead." />
-        <div className="border-b border-border px-5 py-3">
+        <div className="shrink-0 border-b border-border px-5 py-3">
           <Tabs value={tab} onChange={setTab} items={[{
           label: "All",
-          value: "all"
+          value: "all",
+          count: tabCounts.all
         }, {
           label: "Qualified",
-          value: "qualified"
+          value: "qualified",
+          count: tabCounts.qualified
         }, {
           label: "Rejected",
-          value: "rejected"
+          value: "rejected",
+          count: tabCounts.rejected
         }, {
           label: "Pending",
-          value: "pending"
+          value: "pending",
+          count: tabCounts.pending
         }]} />
         </div>
 
-        {jobsLoading && <TableSkeleton rows={5} cols={5} />}
+        <div className="flex flex-1 min-h-0 flex-col">
+          {jobsLoading && <TableSkeleton rows={5} cols={5} />}
 
-        {!jobsLoading && allJobs.length === 0 && <EmptyState icon={<Briefcase className="h-5 w-5" />} title={isRunning ? "Jobs will appear here as they're discovered" : "No jobs in this tab"} />}
+          {!jobsLoading && displayedJobs.length === 0 && <div className="flex flex-1 items-center justify-center"><EmptyState icon={<Briefcase className="h-5 w-5" />} title={isRunning ? "Jobs will appear here as they're discovered" : "No jobs in this tab"} description={!isRunning && tab === "all" ? buildJobsEmptyDescription(campaign.last_run_summary) : undefined} /></div>}
 
-        {!jobsLoading && allJobs.length > 0 && <TableContainer>
+          {!jobsLoading && displayedJobs.length > 0 && <TableContainer className="flex-1 min-h-0 overflow-y-auto">
             <Table>
-              <THead>
+              <THead className="sticky top-0 z-10 bg-gray-50">
                 <TR>
                   <TH>Job Title</TH>
                   <TH>Company</TH>
@@ -196,7 +277,7 @@ export default function CampaignDetailsPage({
                 </TR>
               </THead>
               <TBody>
-                {allJobs.map(job => <TR key={job.id}>
+                {displayedJobs.map(job => <TR key={job.id}>
                     <TD>
                       <Link href={`/campaigns/${campaignId}/jobs/${job.id}`} className="inline-flex items-center gap-2 font-medium text-foreground hover:text-brand">
                         {job.job_title}
@@ -218,6 +299,7 @@ export default function CampaignDetailsPage({
               </TBody>
             </Table>
           </TableContainer>}
+        </div>
       </Card>
     </div>;
 }

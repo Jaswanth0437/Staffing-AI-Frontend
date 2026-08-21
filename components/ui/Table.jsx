@@ -16,13 +16,16 @@ export function Table({
   className,
   ...props
 }) {
-  return <table className={cn("w-full min-w-[720px] text-left text-sm", className)} {...props} />;
+  return <table className={cn("w-full min-w-[720px] border-separate border-spacing-0 text-left text-sm", className)} {...props} />;
 }
 export function THead({
   className,
   ...props
 }) {
-  return <thead className={cn("border-b border-border bg-gray-50/60", className)} {...props} />;
+  // Sticky + a tinted, blurred backdrop by default — every scrollable table
+  // in the app wants this, so it's the baseline instead of something each
+  // page repeats (and can accidentally get out of sync).
+  return <thead className={cn("sticky top-0 z-10 border-b border-border bg-gradient-to-r from-brand-soft/40 via-gray-50 to-gray-50 backdrop-blur-sm", className)} {...props} />;
 }
 export function TBody({
   className,
@@ -34,17 +37,17 @@ export function TR({
   className,
   ...props
 }) {
-  return <tr className={cn("transition-colors hover:bg-gray-50/80", className)} {...props} />;
+  return <tr className={cn("group/row transition-all duration-150 hover:bg-brand-soft/25 hover:shadow-[inset_3px_0_0_0_var(--brand)]", className)} {...props} />;
 }
 export function TH({
   className,
   ...props
 }) {
-  return <th className={cn("px-4 py-3 text-xs font-medium text-muted-foreground", className)} {...props} />;
+  return <th className={cn("px-4 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground", className)} {...props} />;
 }
 export function TD({
   className,
   ...props
 }) {
-  return <td className={cn("px-4 py-3.5 align-middle text-foreground", className)} {...props} />;
+  return <td className={cn("px-4 py-4 align-middle text-foreground", className)} {...props} />;
 }

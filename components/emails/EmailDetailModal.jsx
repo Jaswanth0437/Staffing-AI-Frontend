@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { formatDateTime, orNotAvailable } from "@/lib/utils";
+import { formatDateTime, orNotAvailable, titleCase } from "@/lib/utils";
 const STATUS_TONE = {
   draft: "neutral",
   sent: "success",
@@ -16,7 +16,7 @@ export function EmailDetailModal({
       {email && <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
             <Badge tone={STATUS_TONE[email.status]} dot>
-              {email.status}
+              {titleCase(email.status)}
             </Badge>
           </div>
           <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
