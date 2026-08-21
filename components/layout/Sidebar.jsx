@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Building2, ChevronDown, Contact as ContactIcon, IdCard, LayoutDashboard, Mail, Megaphone, Search, Settings, Users, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { cn, initials } from "@/lib/utils";
 import { APP_NAME, NAV_ITEMS } from "@/lib/constants";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 const ICONS = {
   LayoutDashboard,
   Search,
@@ -22,6 +23,7 @@ export function Sidebar({
   onNavigate
 }) {
   const pathname = usePathname();
+  const currentUser = useCurrentUser();
   return <nav aria-label="Primary" className={cn("flex h-full flex-col border-r border-[var(--sidebar-border)] bg-[var(--sidebar-bg)] transition-[width] duration-200", collapsed ? "w-[68px]" : "w-64")}>
       <div className="flex h-14 items-center gap-2 border-b border-[var(--sidebar-border)] px-4">
         <div className="relative h-7 w-7 shrink-0">
@@ -60,12 +62,12 @@ export function Sidebar({
 
         <button className={cn("focus-ring mt-2 flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left hover:bg-gray-100", collapsed && "justify-center px-0")}>
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand">
-            {initials(APP_NAME)}
+            {initials(currentUser.name)}
           </span>
           {!collapsed && <>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-foreground">Alex Morgan</span>
-                <span className="block truncate text-xs text-muted-foreground">{APP_NAME}</span>
+                <span className="block truncate text-sm font-medium text-foreground">{currentUser.name}</span>
+                <span className="block truncate text-xs text-muted-foreground">{currentUser.email || APP_NAME}</span>
               </span>
               <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
             </>}

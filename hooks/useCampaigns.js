@@ -1,6 +1,6 @@
 "use client";
 
-import { getCampaign, getCampaignEmails, getCampaignJobs, getCampaignLeads, getCampaigns } from "@/lib/api";
+import { getCampaign, getCampaignJobs, getCampaigns } from "@/lib/api";
 import { useAsyncData } from "./useAsyncData";
 export function useCampaigns() {
   return useAsyncData(() => getCampaigns(), []);
@@ -10,10 +10,4 @@ export function useCampaign(campaignId) {
 }
 export function useCampaignJobs(campaignId, tab) {
   return useAsyncData(() => getCampaignJobs(campaignId, tab), [campaignId, tab]);
-}
-export function useCampaignLeads(campaignId) {
-  return useAsyncData(() => getCampaignLeads(campaignId), [campaignId]);
-}
-export function useCampaignEmails(campaignId) {
-  return useAsyncData(() => getCampaignEmails(campaignId), [campaignId]);
 }

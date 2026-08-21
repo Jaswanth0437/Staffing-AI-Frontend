@@ -11,8 +11,7 @@ import { RecentQualifiedJobsTable } from "@/components/dashboard/RecentQualified
 import { RecentLeadsTable } from "@/components/dashboard/RecentLeadsTable";
 import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed";
 import { useAsyncData } from "@/hooks/useAsyncData";
-import { getDashboardStats, getRecentActivity } from "@/lib/api";
-import { useJobs } from "@/hooks/useJobs";
+import { getAllJobs, getDashboardStats, getRecentActivity } from "@/lib/api";
 import { useLeads } from "@/hooks/useLeads";
 export default function DashboardPage() {
   const {
@@ -28,7 +27,7 @@ export default function DashboardPage() {
   const {
     data: jobs,
     loading: jobsLoading
-  } = useJobs();
+  } = useAsyncData(() => getAllJobs(), []);
   const {
     data: leads,
     loading: leadsLoading
@@ -43,10 +42,10 @@ export default function DashboardPage() {
             {statsLoading || !stats ? Array.from({
           length: 4
         }).map((_, i) => <CardSkeleton key={i} />) : <>
-                <StatCard label="Total Jobs" value={stats.total_jobs.toString()} change={stats.trend.total_jobs} icon={<Briefcase className="h-4 w-4" />} />
-                <StatCard label="Qualified Jobs" value={stats.qualified_jobs.toString()} change={stats.trend.qualified_jobs} icon={<CheckCircle2 className="h-4 w-4" />} />
-                <StatCard label="Total Leads" value={stats.total_leads.toString()} change={stats.trend.total_leads} icon={<Users className="h-4 w-4" />} />
-                <StatCard label="Contacts Found" value={stats.contacts_found.toString()} change={stats.trend.contacts_found} icon={<UserSearch className="h-4 w-4" />} />
+                <StatCard label="Total Jobs" value={stats.total_jobs.toString()} icon={<Briefcase className="h-4 w-4" />} />
+                <StatCard label="Qualified Jobs" value={stats.qualified_jobs.toString()} icon={<CheckCircle2 className="h-4 w-4" />} />
+                <StatCard label="Total Leads" value={stats.total_leads.toString()} icon={<Users className="h-4 w-4" />} />
+                <StatCard label="Contacts Found" value={stats.contacts_found.toString()} icon={<UserSearch className="h-4 w-4" />} />
               </>}
           </div>
 

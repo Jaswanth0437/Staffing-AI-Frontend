@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import { Send, Sparkles, UserCheck, Users } from "lucide-react";
+import { CheckCircle2, Send, Sparkles, Users, XCircle } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -13,9 +13,15 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
 import { useAsyncData } from "@/hooks/useAsyncData";
-import { confirmEmployeeForLead, generateEmailForLead, getLead, getLeadEmail, getLeadMatches, matchEmployeesForLead, sendLeadEmail, updateLeadEmail } from "@/lib/api";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import Link from "next/link";
+import { generateEmailForLead, getEmailForLead, getPipelineLead, getLeadMatches, matchEmployeesForLead, regenerateEmail, sendEmail, updateEmail } from "@/lib/api";
 import { CONTACT_TIER_LABELS } from "@/lib/constants";
-import { orNotAvailable } from "@/lib/utils";
+import { initials, orNotAvailable } from "@/lib/utils";
+
+function buildSignature(name) {
+  return `\n\nThanks and Regards\n${name}\nWinfomi - Salesforce CREST Partner\nPh: +91 82482 52320 | US: +1 (615) 314-6998`;
+}
 const TIER_TONE = {
   job_poster: "success",
   hr_contact: "info",
@@ -31,36 +37,43 @@ export default function LeadDetailsPage({
   const {
     toast
   } = useToast();
+  const currentUser = useCurrentUser();
   const {
     data: lead,
     loading: leadLoading,
     error,
     refetch: refetchLead
-  } = useAsyncData(() => getLead(leadId), [leadId]);
+  } = useAsyncData(() => getPipelineLead(leadId), [leadId]);
   const {
     data: matches,
     loading: matchesLoading,
     refetch: refetchMatches
   } = useAsyncData(() => getLeadMatches(leadId), [leadId]);
+  // Hydrates the draft below on first load if this lead already has an
+  // email (e.g. reopening an already-Contacted lead) — not just right
+  // after generating/sending one in this session.
   const {
-    data: email,
-    refetch: refetchEmail
-  } = useAsyncData(() => getLeadEmail(leadId), [leadId]);
+    data: existingEmail
+  } = useAsyncData(() => getEmailForLead(leadId), [leadId]);
   const [matching, setMatching] = useState(false);
-  const [confirmingId, setConfirmingId] = useState(null);
+  const [matchReason, setMatchReason] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [sending, setSending] = useState(false);
   const [draft, setDraft] = useState(null);
+
   useEffect(() => {
-    // Seeds the editable draft from the fetched email; local edits then
-    // diverge from it until the next fetch (regenerate/send) replaces it.
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (email) setDraft(email);
-  }, [email]);
+    if (existingEmail && !draft) setDraft(existingEmail);
+  }, [existingEmail, draft]);
+
+  const hasConfirmedMatch = Boolean(matches?.some(m => m.confirmed));
+
   async function handleMatch() {
     setMatching(true);
+    setMatchReason(null);
     try {
-      await matchEmployeesForLead(leadId);
+      const result = await matchEmployeesForLead(leadId);
+      setMatchReason(result.reason);
       refetchMatches();
     } catch (err) {
       toast({
@@ -72,30 +85,21 @@ export default function LeadDetailsPage({
       setMatching(false);
     }
   }
-  async function handleConfirm(employeeId) {
-    setConfirmingId(employeeId);
-    try {
-      await confirmEmployeeForLead(leadId, employeeId);
-      refetchMatches();
-    } catch (err) {
-      toast({
-        tone: "error",
-        title: "Failed to confirm employee",
-        description: err instanceof Error ? err.message : undefined
-      });
-    } finally {
-      setConfirmingId(null);
-    }
-  }
   async function handleGenerate() {
     setGenerating(true);
     try {
-      const result = await generateEmailForLead(leadId);
-      setDraft(prev => ({
-        ...prev,
-        ...result
-      }));
-      refetchEmail();
+      // Only the very first generate uses POST /leads/{id}/generate-email;
+      // once an email row exists, further attempts go through
+      // POST /emails/{id}/regenerate instead (both overwrite in place).
+      const result = draft?.id ? await regenerateEmail(draft.id) : await generateEmailForLead(leadId);
+      // The backend never knows who's operating the platform — stamp the
+      // real "From" identity and the standard sign-off client-side, over
+      // the backend's generic placeholder sender/body.
+      setDraft({
+        ...result,
+        sender: currentUser.email || result.sender,
+        body: `${result.body}${buildSignature(currentUser.name)}`
+      });
     } catch (err) {
       toast({
         tone: "error",
@@ -109,21 +113,20 @@ export default function LeadDetailsPage({
   async function handleSend() {
     setSending(true);
     try {
-      if (draft) {
-        await updateLeadEmail(leadId, {
-          from_email: draft.from_email,
-          to_email: draft.to_email,
-          subject: draft.subject,
-          body: draft.body
-        });
-      }
-      await sendLeadEmail(leadId);
+      await updateEmail(draft.id, {
+        sender: draft.sender,
+        recipient: draft.recipient,
+        subject: draft.subject,
+        body: draft.body
+      });
+      const sent = await sendEmail(draft.id);
+      setDraft(sent);
+      refetchLead();
       toast({
         tone: "success",
-        title: "Email sent"
+        title: "Email sent",
+        description: "Lead status moved to Contacted."
       });
-      refetchEmail();
-      refetchLead();
     } catch (err) {
       toast({
         tone: "error",
@@ -142,7 +145,7 @@ export default function LeadDetailsPage({
       </div>;
   }
   const contact = lead.contact ?? {};
-  const sent = draft?.status === "sent" || email?.status === "sent";
+  const sent = draft?.status === "sent";
   return <div>
       <PageHeader breadcrumbs={[{
       label: "Campaigns",
@@ -152,19 +155,27 @@ export default function LeadDetailsPage({
       href: `/campaigns/${campaignId}`
     }, {
       label: "Lead"
-    }]} title={contact.name ?? lead.company?.company_name ?? "Lead"} subtitle={lead.job?.job_title} />
+    }]} title={<span className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-soft text-sm font-semibold text-brand">
+              {initials(contact.name ?? lead.company?.company_name ?? "Lead")}
+            </span>
+            {contact.name ?? lead.company?.company_name ?? "Lead"}
+          </span>} subtitle={lead.job?.job_title} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="flex flex-col gap-6 lg:col-span-2">
           <Card>
-            <CardHeader title="Employee Match" subtitle="Internal review only — never shown to the recipient." action={<Button variant="outline" size="sm" icon={<Sparkles className="h-3.5 w-3.5" />} loading={matching} onClick={handleMatch}>
+            <CardHeader title={<span className="flex items-center gap-2">
+                  Employee Match
+                  {!matchesLoading && matches && (hasConfirmedMatch ? <Badge tone="success"><CheckCircle2 className="h-3 w-3" />Match Found</Badge> : <Badge tone="neutral"><XCircle className="h-3 w-3" />No Match Found</Badge>)}
+                </span>} subtitle="Internal review only — never shown to the recipient. The top-ranked candidate is used for outreach automatically." action={<Button variant="outline" size="sm" icon={<Sparkles className="h-3.5 w-3.5" />} loading={matching} onClick={handleMatch}>
                   {matches && matches.length > 0 ? "Re-match" : "Find Matching Employees"}
                 </Button>} />
             {matchesLoading && <CardBody>
                 <Skeleton className="h-24 w-full" />
               </CardBody>}
-            {!matchesLoading && (!matches || matches.length === 0) && <EmptyState icon={<Users className="h-5 w-5" />} title="No matches yet" description="Run matching to rank employees against this job's requirements." />}
-            {!matchesLoading && matches && matches.length > 0 && <div className="divide-y divide-border">
+            {!matchesLoading && (!matches || matches.length === 0) && (matchReason === "no_qualifying_employees" ? <EmptyState icon={<Users className="h-5 w-5" />} title="No qualifying employees found" description="The AI reviewed the bench and determined none are a reasonable fit for this specific role — a legitimate result, not an error." /> : <EmptyState icon={<Users className="h-5 w-5" />} title="No matches yet" description="Run matching to rank employees against this job's requirements." />)}
+            {!matchesLoading && matches && matches.length > 0 && <div className="max-h-[22rem] divide-y divide-border overflow-y-auto">
                 {matches.map(m => <div key={m.id} className="flex items-start justify-between gap-4 px-5 py-4">
                     <div>
                       <p className="text-sm font-medium text-foreground">
@@ -176,30 +187,30 @@ export default function LeadDetailsPage({
                       <Badge tone={m.match_score >= 0.6 ? "success" : m.match_score >= 0.3 ? "warning" : "neutral"}>
                         {Math.round(m.match_score * 100)}% match
                       </Badge>
-                      <Button size="sm" variant={m.confirmed ? "secondary" : "outline"} icon={<UserCheck className="h-3.5 w-3.5" />} loading={confirmingId === m.employee_id} onClick={() => handleConfirm(m.employee_id)}>
-                        {m.confirmed ? "Confirmed" : "Confirm"}
-                      </Button>
+                      {m.confirmed && <Badge tone="info">Used for outreach</Badge>}
                     </div>
                   </div>)}
               </div>}
           </Card>
 
           <Card>
-            <CardHeader title="Email Review" subtitle="Editable before sending — no employee name or PII is referenced in the copy." action={<Button variant="outline" size="sm" icon={<Sparkles className="h-3.5 w-3.5" />} loading={generating} onClick={handleGenerate} disabled={!matches || matches.length === 0}>
+            <CardHeader title="Email Review" subtitle="Editable before sending — no employee name or PII is referenced in the copy." action={<Button variant="outline" size="sm" icon={<Sparkles className="h-3.5 w-3.5" />} loading={generating} onClick={handleGenerate} disabled={!hasConfirmedMatch}>
                   {draft ? "Regenerate" : "Generate Email"}
                 </Button>} />
             {!draft && <CardBody>
-                <p className="text-sm text-muted-foreground">Generate an email once you&apos;ve matched employees for this lead.</p>
+                <p className="text-sm text-muted-foreground">
+                  {hasConfirmedMatch ? "Click Generate Email to draft the outreach copy." : "Find a matching employee above before generating an email."}
+                </p>
               </CardBody>}
             {draft && <CardBody className="flex flex-col gap-3">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <Input label="From" value={draft.from_email ?? ""} disabled={sent} onChange={e => setDraft(prev => ({
+                  <Input label="From" value={draft.sender ?? ""} disabled={sent} onChange={e => setDraft(prev => ({
                 ...prev,
-                from_email: e.target.value
+                sender: e.target.value
               }))} />
-                  <Input label="To" value={draft.to_email ?? ""} disabled={sent} onChange={e => setDraft(prev => ({
+                  <Input label="To" value={draft.recipient ?? ""} disabled={sent} onChange={e => setDraft(prev => ({
                 ...prev,
-                to_email: e.target.value
+                recipient: e.target.value
               }))} />
                 </div>
                 <Input label="Subject" value={draft.subject ?? ""} disabled={sent} onChange={e => setDraft(prev => ({
@@ -210,7 +221,7 @@ export default function LeadDetailsPage({
               ...prev,
               body: e.target.value
             }))} />
-                {sent ? <Badge tone="success" className="self-start">Sent</Badge> : <Button className="self-end" icon={<Send className="h-4 w-4" />} loading={sending} onClick={handleSend}>
+                {sent ? <Badge tone="success" className="self-start">Sent</Badge> : <Button className="self-end" icon={<Send className="h-4 w-4" />} loading={sending} disabled={!draft.recipient} onClick={handleSend}>
                     Send
                   </Button>}
               </CardBody>}
@@ -239,9 +250,10 @@ export default function LeadDetailsPage({
               <CardBody>
                 <dl className="flex flex-col gap-3">
                   <Field label="Company" value={lead.company.company_name} />
-                  <Field label="Domain" value={lead.company.company_domain} />
-                  <Field label="Employee count" value={lead.company.employee_count ? `${lead.company.employee_count}` : undefined} />
                 </dl>
+                {lead.company.company_name && <Link href={`/companies/${encodeURIComponent(lead.company.company_name)}`} className="focus-ring mt-3 inline-flex h-8 items-center rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
+                    View Company Profile
+                  </Link>}
               </CardBody>
             </Card>}
         </div>

@@ -12,16 +12,16 @@ export default function NewCampaignPage() {
     toast
   } = useToast();
   const [creating, setCreating] = useState(false);
-  async function handleCreate(params) {
+  async function handleCreate(payload) {
     setCreating(true);
     try {
-      const result = await createCampaign(params);
+      const campaign = await createCampaign(payload);
       toast({
         tone: "success",
         title: "Campaign created",
-        description: `${result.campaign.name} pulled ${result.jobs.length} job(s) from Apify.`
+        description: `${campaign.name} is now discovering jobs from Apify in the background.`
       });
-      router.push(`/campaigns/${result.campaign.id}`);
+      router.push(`/campaigns/${campaign.id}`);
     } catch (err) {
       toast({
         tone: "error",

@@ -5,65 +5,73 @@ import { Plus, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { COUNTRY_OPTIONS, EXPERIENCE_LEVEL_OPTIONS, JOB_TYPE_OPTIONS, REMOTE_OPTIONS, TIME_RANGE_OPTIONS } from "@/lib/constants";
+import { COUNTRY_OPTIONS, EMPLOYMENT_TYPE_OPTIONS, EXPERIENCE_LEVEL_OPTIONS, POSTING_TIMEFRAME_OPTIONS, WORK_MODE_OPTIONS } from "@/lib/constants";
+
+function suggestName(jobRole) {
+  const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const slug = jobRole.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+  return slug ? `Campaign_${today}_${slug}` : "";
+}
+
+// Values here must match the exact tokens backend/config.py's keyword maps
+// expect (see lib/constants.js) — not arbitrary display strings.
 export const DEFAULT_CAMPAIGN_PARAMS = {
-  keyword: "AI/ML Engineer",
-  location: "London",
-  country: "GB",
-  time_range: "Past 24 hours",
-  job_type: "Full-time",
-  experience_level: "Mid-Senior level",
-  remote: "On-site",
+  job_role: "",
+  location: "",
+  country: "",
+  experience_level: "",
+  employment_type: "",
+  work_mode: "",
   company: "",
-  location_radius: "25",
-  max_applicants: 99,
-  min_company_size: 50,
-  max_company_size: 10000
+  posting_timeframe: ""
 };
+
 export function NewCampaignForm({
   onCreate,
   loading
 }) {
+  const [name, setName] = useState("");
+  const [nameEdited, setNameEdited] = useState(false);
   const [params, setParams] = useState(DEFAULT_CAMPAIGN_PARAMS);
+
   function update(key, value) {
-    setParams(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setParams(prev => {
+      const next = { ...prev, [key]: value };
+      if (key === "job_role" && !nameEdited) setName(suggestName(value));
+      return next;
+    });
   }
   function handleSubmit(e) {
     e.preventDefault();
-    onCreate(params);
+    onCreate({ name, search_criteria: params });
   }
   function handleReset() {
     setParams(DEFAULT_CAMPAIGN_PARAMS);
+    setName("");
+    setNameEdited(false);
   }
+
   return <form onSubmit={handleSubmit} className="rounded-xl border border-border bg-surface p-5 shadow-sm">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <Input label="Role" value={params.keyword} onChange={e => update("keyword", e.target.value)} placeholder="e.g. AI/ML Engineer" />
-        <Input label="Location" value={params.location} onChange={e => update("location", e.target.value)} placeholder="e.g. London" />
-        <Select label="Country" value={params.country} onChange={e => update("country", e.target.value)} options={COUNTRY_OPTIONS} />
-        <Select label="Timeframe" value={params.time_range} onChange={e => update("time_range", e.target.value)} options={TIME_RANGE_OPTIONS.map(v => ({
-        label: v,
-        value: v
-      }))} />
-        <Select label="Employment Type" value={params.job_type} onChange={e => update("job_type", e.target.value)} options={JOB_TYPE_OPTIONS.map(v => ({
-        label: v,
-        value: v
-      }))} />
-        <Select label="Experience Level" value={params.experience_level} onChange={e => update("experience_level", e.target.value)} options={EXPERIENCE_LEVEL_OPTIONS.map(v => ({
-        label: v,
-        value: v
-      }))} />
-        <Select label="Work Mode" value={params.remote} onChange={e => update("remote", e.target.value)} options={REMOTE_OPTIONS.map(v => ({
-        label: v,
-        value: v
-      }))} />
+        <Input
+          label="Campaign Name"
+          value={name}
+          onChange={e => {
+            setName(e.target.value);
+            setNameEdited(true);
+          }}
+          placeholder="e.g. Campaign_20260820_ai-ml-engineer"
+          required
+          wrapperClassName="sm:col-span-2 lg:col-span-2"
+        />
+        <Input label="Job Role" value={params.job_role} onChange={e => update("job_role", e.target.value)} placeholder="e.g. AI/ML Engineer" required />
+        <Input label="Location" value={params.location} onChange={e => update("location", e.target.value)} placeholder="e.g. London" required />
+        <Select label="Country" value={params.country} onChange={e => update("country", e.target.value)} options={COUNTRY_OPTIONS} placeholder="Select country" />
+        <Select label="Posting Timeframe" value={params.posting_timeframe} onChange={e => update("posting_timeframe", e.target.value)} options={POSTING_TIMEFRAME_OPTIONS} placeholder="Select timeframe" />
+        <Select label="Employment Type" value={params.employment_type} onChange={e => update("employment_type", e.target.value)} options={EMPLOYMENT_TYPE_OPTIONS} placeholder="Select employment type" />
+        <Select label="Experience Level" value={params.experience_level} onChange={e => update("experience_level", e.target.value)} options={EXPERIENCE_LEVEL_OPTIONS.map(v => ({ label: v, value: v }))} placeholder="Select experience level" />
+        <Select label="Work Mode" value={params.work_mode} onChange={e => update("work_mode", e.target.value)} options={WORK_MODE_OPTIONS} placeholder="Select work mode" />
         <Input label="Company" value={params.company} onChange={e => update("company", e.target.value)} placeholder="Optional" />
-        <Input label="Location Radius (mi)" type="number" value={params.location_radius} onChange={e => update("location_radius", e.target.value)} />
-        <Input label="Maximum Applicants" type="number" value={params.max_applicants} onChange={e => update("max_applicants", Number(e.target.value))} />
-        <Input label="Minimum Company Size" type="number" value={params.min_company_size} onChange={e => update("min_company_size", Number(e.target.value))} />
-        <Input label="Maximum Company Size" type="number" value={params.max_company_size} onChange={e => update("max_company_size", Number(e.target.value))} />
       </div>
 
       <div className="mt-5 flex items-center gap-2">

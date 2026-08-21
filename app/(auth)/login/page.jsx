@@ -5,7 +5,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { APP_NAME } from "@/lib/constants";
+import { setCurrentUser } from "@/lib/currentUser";
 const PLATFORM_MODULES = [{
   title: "Campaigns & Job Discovery",
   description: "Pull qualified roles from Apify and triage them automatically.",
@@ -34,26 +36,38 @@ const PLATFORM_MODULES = [{
 export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  function handleMicrosoftLogin() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+
+  function handleMicrosoftLogin(e) {
+    e.preventDefault();
     setLoading(true);
-    // TODO: replace with real Microsoft OAuth redirect
+    // TODO: replace with a real Microsoft OAuth redirect — this captures
+    // the same name/email a real sign-in would return via SSO claims, used
+    // for the sidebar profile and as the "From" identity on outreach emails.
+    setCurrentUser({ name: name.trim(), email: email.trim() });
     setTimeout(() => router.push("/dashboard"), 900);
   }
   return <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       <div className="flex flex-col items-center justify-center gap-10 px-6 py-16">
-        <div className="flex w-full max-w-sm flex-col items-center text-center">
+        <form onSubmit={handleMicrosoftLogin} className="flex w-full max-w-sm flex-col items-center text-center">
           <div className="relative mb-6 h-16 w-16">
             <Image src="/Winlogo.png" alt={APP_NAME} fill className="object-contain" priority />
           </div>
           <h1 className="text-2xl font-semibold text-foreground">Welcome to {APP_NAME}</h1>
           <p className="mt-2 text-sm text-muted-foreground">Continue with Microsoft to access your workspace.</p>
 
-          <Button variant="secondary" className="mt-8 h-11 w-full justify-center gap-3 text-base" onClick={handleMicrosoftLogin} loading={loading}>
+          <div className="mt-8 flex w-full flex-col gap-3 text-left">
+            <Input name="fullName" label="Full Name" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Priya Sharma" required />
+            <Input name="workEmail" label="Work Email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. priya.s@winfomi.com" required />
+          </div>
+
+          <Button type="submit" variant="secondary" className="mt-4 h-11 w-full justify-center gap-3 text-base" loading={loading}>
             {!loading && <MicrosoftIcon />}
             Continue with Microsoft
             {!loading && <ArrowRight className="h-4 w-4" />}
           </Button>
-        </div>
+        </form>
         <p className="text-xs text-muted-foreground">© 2026 Winfomi. All rights reserved.</p>
       </div>
 
