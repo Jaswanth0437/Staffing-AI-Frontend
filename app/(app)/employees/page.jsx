@@ -65,7 +65,7 @@ export default function EmployeesPage() {
     setSaving(true);
     try {
       await updateEmployee(employeeId, values);
-      toast({ tone: "success", title: "Employee updated" });
+      toast({ tone: "success", title: "Resource updated" });
       setEditing(null);
       refetch();
     } catch (err) {
@@ -84,7 +84,7 @@ export default function EmployeesPage() {
     setRemoving(true);
     try {
       await deleteEmployee(deleting.id);
-      toast({ tone: "success", title: "Employee deleted" });
+      toast({ tone: "success", title: "Resource deleted" });
       setDeleting(null);
       refetch();
     } catch (err) {
@@ -98,28 +98,29 @@ export default function EmployeesPage() {
     }
   }
 
-  return <div>
-      <PageHeader title="Employees" subtitle="Your bench, synced from Salesforce — matched against lead job requirements in the campaign flow." actions={<Button title="Sync from Salesforce" icon={<RefreshCw className="h-4 w-4" />} loading={syncing} onClick={handleSync}>
+  return <div className="flex h-full flex-col">
+      <PageHeader title="Resources" subtitle="Your bench, synced from Salesforce — matched against lead job requirements in the campaign flow." actions={<Button title="Sync from Salesforce" icon={<RefreshCw className="h-4 w-4" />} loading={syncing} onClick={handleSync}>
             Sync from Salesforce
           </Button>} />
 
       {error && <ErrorState description={error} onRetry={refetch} />}
 
-      {!error && <Card className="overflow-hidden">
-          <div className="border-b border-border px-5 py-4">
+      {!error && <Card className="flex flex-1 min-h-[34rem] flex-col overflow-hidden">
+          <div className="shrink-0 border-b border-border px-5 py-4">
             <div className="relative max-w-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search employees..." aria-label="Search employees" title="Search employees" className="focus-ring h-9 w-full rounded-lg border border-border-strong bg-white pl-9 pr-3 text-sm placeholder:text-muted-foreground" />
+              <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search resources..." aria-label="Search resources" title="Search resources" className="focus-ring h-9 w-full rounded-lg border border-border-strong bg-white pl-9 pr-3 text-sm placeholder:text-muted-foreground" />
             </div>
           </div>
 
+          <div className="flex flex-1 min-h-0 flex-col">
           {loading && <TableSkeleton rows={5} cols={4} />}
 
-          {!loading && (!employees || employees.length === 0) && <EmptyState icon={<IdCard className="h-5 w-5" />} title="No employees yet" description="Click Sync from Salesforce to pull the bench roster before matching leads." />}
+          {!loading && (!employees || employees.length === 0) && <div className="flex flex-1 items-center justify-center"><EmptyState icon={<IdCard className="h-5 w-5" />} title="No resources yet" description="Click Sync from Salesforce to pull the bench roster before matching leads." /></div>}
 
-          {!loading && employees && employees.length > 0 && filtered.length === 0 && <EmptyState icon={<IdCard className="h-5 w-5" />} title="No employees found" description="Try adjusting your search." />}
+          {!loading && employees && employees.length > 0 && filtered.length === 0 && <div className="flex flex-1 items-center justify-center"><EmptyState icon={<IdCard className="h-5 w-5" />} title="No resources found" description="Try adjusting your search." /></div>}
 
-          {!loading && filtered.length > 0 && <TableContainer className="max-h-[20rem] overflow-y-auto">
+          {!loading && filtered.length > 0 && <TableContainer className="flex-1 min-h-0 overflow-y-auto">
               <Table className="table-fixed">
                 <THead className="sticky top-0 z-10 bg-gray-50">
                   <TR>
@@ -146,10 +147,10 @@ export default function EmployeesPage() {
                       <TD className="truncate text-muted-foreground">{orNotAvailable(employee.summary)}</TD>
                       <TD className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button variant="outline" size="icon" title="Edit employee" aria-label="Edit employee" onClick={() => setEditing(employee)}>
+                          <Button variant="outline" size="icon" title="Edit resource" aria-label="Edit resource" onClick={() => setEditing(employee)}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
-                          <Button variant="outline" size="icon" title="Delete employee" aria-label="Delete employee" onClick={() => setDeleting(employee)}>
+                          <Button variant="outline" size="icon" title="Delete resource" aria-label="Delete resource" onClick={() => setDeleting(employee)}>
                             <Trash2 className="h-3.5 w-3.5 text-danger" />
                           </Button>
                         </div>
@@ -158,11 +159,12 @@ export default function EmployeesPage() {
                 </TBody>
               </Table>
             </TableContainer>}
+          </div>
         </Card>}
 
       <EmployeeEditModal employee={editing} saving={saving} onClose={() => setEditing(null)} onSave={handleSave} />
 
-      <Modal open={!!deleting} onClose={() => setDeleting(null)} title="Delete Employee" footer={<>
+      <Modal open={!!deleting} onClose={() => setDeleting(null)} title="Delete Resource" footer={<>
             <Button variant="outline" onClick={() => setDeleting(null)} disabled={removing}>
               Cancel
             </Button>
@@ -171,7 +173,7 @@ export default function EmployeesPage() {
             </Button>
           </>}>
         <p className="text-sm text-foreground">
-          Are you sure you want to delete <span className="font-medium">{deleting?.name}</span>? This can&apos;t be undone, and will fail if this employee is already matched or emailed against a lead.
+          Are you sure you want to delete <span className="font-medium">{deleting?.name}</span>? This can&apos;t be undone, and will fail if this resource is already matched or emailed against a lead.
         </p>
       </Modal>
     </div>;

@@ -30,8 +30,8 @@ export function Modal({
     lg: "max-w-2xl"
   }[size];
   return <div role="dialog" aria-modal="true" aria-labelledby="modal-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-      <div className={cn("relative z-10 w-full rounded-xl border border-border bg-surface shadow-xl", sizeClass)}>
+      <div className="animate-fade-in absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
+      <div className={cn("animate-scale-in relative z-10 w-full rounded-2xl border border-border bg-surface shadow-2xl", sizeClass)}>
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 id="modal-title" className="text-sm font-semibold text-foreground">
             {title}

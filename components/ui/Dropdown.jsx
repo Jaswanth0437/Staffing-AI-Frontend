@@ -19,7 +19,7 @@ export function Dropdown({
   }, [open]);
   return <div className="relative inline-block" ref={ref}>
       <div onClick={() => setOpen(o => !o)}>{trigger}</div>
-      {open && <div role="menu" className={cn("absolute z-20 mt-1.5 min-w-[10rem] rounded-lg border border-border bg-surface py-1 shadow-lg", align === "right" ? "right-0" : "left-0")}>
+      {open && <div role="menu" className={cn("animate-scale-in absolute z-20 mt-1.5 min-w-[10rem] origin-top rounded-lg border border-border bg-surface py-1 shadow-lg", align === "right" ? "right-0 origin-top-right" : "left-0 origin-top-left")}>
           {items.map(item => <button key={item.label} role="menuitem" onClick={() => {
         setOpen(false);
         item.onSelect();

@@ -9,11 +9,17 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { JobDescriptionText } from "@/components/jobs/JobDescriptionText";
 import { QualificationBadge } from "@/components/jobs/QualificationBadge";
 import { useToast } from "@/components/ui/Toast";
 import { useAsyncData } from "@/hooks/useAsyncData";
 import { createLeadFromJob, getCampaignJob, manualQualifyJob } from "@/lib/api";
+import { JOB_SOURCE_OPTIONS } from "@/lib/constants";
 import { formatDate, titleCase } from "@/lib/utils";
+
+// "linkedin"/"dice" need their real brand capitalization ("LinkedIn"), not
+// the generic first-letter-only titleCase transform.
+const JOB_SOURCE_LABELS = Object.fromEntries(JOB_SOURCE_OPTIONS.map(o => [o.value, o.label]));
 
 const RULE_FLAG_ICON = {
   passed: <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-success" />,
@@ -120,8 +126,11 @@ export default function CampaignJobDetailsPage({
         <div className="flex flex-col gap-6 lg:col-span-2">
           <Card>
             <CardHeader title="Job Description" />
-            <CardBody>
-              <p className="whitespace-pre-line text-sm leading-relaxed text-foreground">{job.job_description || "No description available."}</p>
+            {/* Fixed height matching the Company card alongside it, with the
+                (often much longer) description scrolling inside instead of
+                pushing the page taller than its neighbor. */}
+            <CardBody className="max-h-[22rem] overflow-y-auto">
+              <JobDescriptionText text={job.job_description} />
             </CardBody>
           </Card>
 
@@ -134,7 +143,10 @@ export default function CampaignJobDetailsPage({
                   {job.status.toUpperCase()}
                 </span>
               </div>
-              <p className="text-sm text-muted-foreground">{job.reason || (pending ? "Still being qualified — check back shortly." : "No reason provided.")}</p>
+              <p className="flex items-start gap-2 text-sm text-muted-foreground">
+                {!pending && !qualified && <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-danger" />}
+                <span>{job.reason || (pending ? "Still being qualified — check back shortly." : "No reason provided.")}</span>
+              </p>
 
               {job.rule_flags && Object.keys(job.rule_flags).length > 0 && <ul className="mt-4 flex flex-col gap-2 border-t border-border pt-4">
                   {Object.entries(job.rule_flags).map(([key, value]) => <li key={key} className="flex items-center gap-2 text-sm">
@@ -164,7 +176,7 @@ export default function CampaignJobDetailsPage({
               <dl className="flex flex-col gap-3">
                 <Field label="Company" value={job.company_name} />
                 <Field label="Applicants" value={job.job_num_applicants !== undefined && job.job_num_applicants !== null ? `${job.job_num_applicants}` : undefined} />
-                <Field label="Source" value={job.source} />
+                <Field label="Source" value={JOB_SOURCE_LABELS[job.source] ?? titleCase(job.source ?? "")} />
                 <Field label="Posted" value={job.posted_date ? formatDate(job.posted_date) : undefined} />
                 <Field label="External job ID" value={job.external_job_id} />
                 <Field label="Posting URL" value={job.url} href={job.url} />

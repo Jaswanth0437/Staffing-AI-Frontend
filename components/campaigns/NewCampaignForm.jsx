@@ -5,7 +5,7 @@ import { Plus, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { COUNTRY_OPTIONS, EMPLOYMENT_TYPE_OPTIONS, EXPERIENCE_LEVEL_OPTIONS, POSTING_TIMEFRAME_OPTIONS, WORK_MODE_OPTIONS } from "@/lib/constants";
+import { COUNTRY_OPTIONS, EMPLOYMENT_TYPE_OPTIONS, EXPERIENCE_LEVEL_OPTIONS, JOB_SOURCE_OPTIONS, POSTING_TIMEFRAME_OPTIONS, WORK_MODE_OPTIONS } from "@/lib/constants";
 
 function suggestName(jobRole) {
   const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -23,7 +23,12 @@ export const DEFAULT_CAMPAIGN_PARAMS = {
   employment_type: "",
   work_mode: "",
   company: "",
-  posting_timeframe: ""
+  posting_timeframe: "",
+  // Defaults to LinkedIn — today's only active source — rather than an
+  // empty/placeholder state, so a value is always present without needing
+  // a separate required-field validation pattern this form doesn't use
+  // elsewhere.
+  job_source: "linkedin"
 };
 
 export function NewCampaignForm({
@@ -65,13 +70,14 @@ export function NewCampaignForm({
           wrapperClassName="sm:col-span-2 lg:col-span-2"
         />
         <Input label="Job Role" value={params.job_role} onChange={e => update("job_role", e.target.value)} placeholder="e.g. AI/ML Engineer" required />
-        <Input label="Location" value={params.location} onChange={e => update("location", e.target.value)} placeholder="e.g. London" required />
+        <Input label="City" value={params.location} onChange={e => update("location", e.target.value)} placeholder="e.g. London" required />
         <Select label="Country" value={params.country} onChange={e => update("country", e.target.value)} options={COUNTRY_OPTIONS} placeholder="Select country" />
         <Select label="Posting Timeframe" value={params.posting_timeframe} onChange={e => update("posting_timeframe", e.target.value)} options={POSTING_TIMEFRAME_OPTIONS} placeholder="Select timeframe" />
         <Select label="Employment Type" value={params.employment_type} onChange={e => update("employment_type", e.target.value)} options={EMPLOYMENT_TYPE_OPTIONS} placeholder="Select employment type" />
         <Select label="Experience Level" value={params.experience_level} onChange={e => update("experience_level", e.target.value)} options={EXPERIENCE_LEVEL_OPTIONS.map(v => ({ label: v, value: v }))} placeholder="Select experience level" />
         <Select label="Work Mode" value={params.work_mode} onChange={e => update("work_mode", e.target.value)} options={WORK_MODE_OPTIONS} placeholder="Select work mode" />
         <Input label="Company" value={params.company} onChange={e => update("company", e.target.value)} placeholder="Optional" />
+        <Select label="Job Source" value={params.job_source} onChange={e => update("job_source", e.target.value)} options={JOB_SOURCE_OPTIONS} />
       </div>
 
       <div className="mt-5 flex items-center gap-2">

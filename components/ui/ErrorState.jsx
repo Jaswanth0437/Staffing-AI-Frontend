@@ -5,13 +5,13 @@ export function ErrorState({
   description,
   onRetry
 }) {
-  return <div className="flex flex-col items-center justify-center gap-3 px-6 py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-danger-soft text-danger">
-        <AlertTriangle className="h-5 w-5" />
+  return <div className="animate-fade-in flex flex-col items-center justify-center gap-4 px-6 py-16 text-center">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-danger-soft text-danger shadow-sm ring-1 ring-black/5">
+        <AlertTriangle className="h-6 w-6" />
       </div>
       <div>
         <p className="text-sm font-semibold text-foreground">{title}</p>
-        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        {description && <p className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground">{description}</p>}
       </div>
       {onRetry && <Button variant="secondary" size="sm" onClick={onRetry}>
           Retry

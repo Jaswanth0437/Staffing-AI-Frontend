@@ -14,16 +14,17 @@ import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui
 import { QualificationBadge } from "@/components/jobs/QualificationBadge";
 import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge";
 import { useCompany } from "@/hooks/useCompanies";
-import { formatApplicants, formatDateTime, initials, orNotAvailable } from "@/lib/utils";
+import { formatApplicants, formatDateTime, initials, orNotAvailable, titleCase } from "@/lib/utils";
 const EMAIL_STATUS_TONE = {
   draft: "neutral",
   sent: "success",
   failed: "danger"
 };
 
-// Every tab's table sits in a fixed-height scroll area so the card stays
-// the same size regardless of how many rows a company has.
-const TAB_PANEL_HEIGHT = "max-h-[22rem] overflow-y-auto";
+// Every tab's table fills whatever vertical space is left in the card
+// (which itself fills the screen — see the page root below) so the card
+// stays the same size regardless of how many rows a company has.
+const TAB_PANEL_HEIGHT = "flex-1 min-h-0 overflow-y-auto";
 
 function Field({
   label,
@@ -60,7 +61,7 @@ export default function CompanyDetailsPage({
       </div>;
   }
   const contactsByLeadId = new Map(company.contacts.map(c => [c.lead_id, c]));
-  return <div>
+  return <div className="flex h-full flex-col">
       <PageHeader breadcrumbs={[{
       label: "Companies",
       href: "/companies"
@@ -73,8 +74,8 @@ export default function CompanyDetailsPage({
             {company.company_name}
           </span>} subtitle={orNotAvailable(company.location)} />
 
-      <Card>
-        <div className="border-b border-border px-5 py-3">
+      <Card className="flex flex-1 min-h-[34rem] flex-col">
+        <div className="shrink-0 border-b border-border px-5 py-3">
           <Tabs value={tab} onChange={setTab} items={[{
           label: "Overview",
           value: "overview"
@@ -97,7 +98,7 @@ export default function CompanyDetailsPage({
         }]} />
         </div>
 
-        {tab === "overview" && <CardBody>
+        {tab === "overview" && <CardBody className="flex-1 min-h-0">
             <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
               <Field label="Company name" value={company.company_name} />
               <Field label="Location" value={company.location} />
@@ -107,7 +108,7 @@ export default function CompanyDetailsPage({
             </dl>
           </CardBody>}
 
-        {tab === "contacts" && (company.contacts.length === 0 ? <EmptyState icon={<Users className="h-5 w-5" />} title="No contacts found" description="No contacts have been resolved for this company's leads yet." /> : <TableContainer className={TAB_PANEL_HEIGHT}>
+        {tab === "contacts" && (company.contacts.length === 0 ? <div className="flex flex-1 items-center justify-center"><EmptyState icon={<Users className="h-5 w-5" />} title="No contacts found" description="No contacts have been resolved for this company's leads yet." /></div> : <TableContainer className={TAB_PANEL_HEIGHT}>
                 <Table>
                   <THead className="sticky top-0 z-10 bg-gray-50">
                     <TR>
@@ -124,13 +125,13 @@ export default function CompanyDetailsPage({
                         <TD className="text-muted-foreground">{orNotAvailable(c.designation)}</TD>
                         <TD className="text-muted-foreground">{orNotAvailable(c.email)}</TD>
                         <TD className="text-muted-foreground">{orNotAvailable(c.phone)}</TD>
-                        <TD className="text-muted-foreground">{c.source}</TD>
+                        <TD className="text-muted-foreground">{titleCase(c.source)}</TD>
                       </TR>)}
                   </TBody>
                 </Table>
               </TableContainer>)}
 
-        {tab === "jobs" && (company.jobs.length === 0 ? <EmptyState icon={<Building2 className="h-5 w-5" />} title="No jobs found" description="No jobs discovered for this company yet." /> : <TableContainer className={TAB_PANEL_HEIGHT}>
+        {tab === "jobs" && (company.jobs.length === 0 ? <div className="flex flex-1 items-center justify-center"><EmptyState icon={<Building2 className="h-5 w-5" />} title="No jobs found" description="No jobs discovered for this company yet." /></div> : <TableContainer className={TAB_PANEL_HEIGHT}>
                 <Table>
                   <THead className="sticky top-0 z-10 bg-gray-50">
                     <TR>
@@ -157,7 +158,7 @@ export default function CompanyDetailsPage({
                 </Table>
               </TableContainer>)}
 
-        {tab === "leads" && (company.leads.length === 0 ? <EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="No leads have been created for this company yet." /> : <TableContainer className={TAB_PANEL_HEIGHT}>
+        {tab === "leads" && (company.leads.length === 0 ? <div className="flex flex-1 items-center justify-center"><EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="No leads have been created for this company yet." /></div> : <TableContainer className={TAB_PANEL_HEIGHT}>
                 <Table>
                   <THead className="sticky top-0 z-10 bg-gray-50">
                     <TR>
@@ -185,7 +186,7 @@ export default function CompanyDetailsPage({
                 </Table>
               </TableContainer>)}
 
-        {tab === "emails" && (company.emails.length === 0 ? <EmptyState icon={<MailIcon className="h-5 w-5" />} title="No emails yet" description="Draft or send an email from one of this company's leads to see it here." /> : <TableContainer className={TAB_PANEL_HEIGHT}>
+        {tab === "emails" && (company.emails.length === 0 ? <div className="flex flex-1 items-center justify-center"><EmptyState icon={<MailIcon className="h-5 w-5" />} title="No emails yet" description="Draft or send an email from one of this company's leads to see it here." /></div> : <TableContainer className={TAB_PANEL_HEIGHT}>
                 <Table>
                   <THead className="sticky top-0 z-10 bg-gray-50">
                     <TR>
@@ -202,7 +203,7 @@ export default function CompanyDetailsPage({
                         <TD className="text-muted-foreground">{orNotAvailable(e.subject)}</TD>
                         <TD>
                           <Badge tone={EMAIL_STATUS_TONE[e.status]} dot>
-                            {e.status}
+                            {titleCase(e.status)}
                           </Badge>
                         </TD>
                         <TD className="text-muted-foreground">{e.sent_at ? formatDateTime(e.sent_at) : "—"}</TD>

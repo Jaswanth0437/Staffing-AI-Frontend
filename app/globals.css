@@ -25,9 +25,15 @@
   --violet-soft: #f3e8ff;
 
   --sidebar-bg: #ffffff;
-  --sidebar-foreground: #4b5563;
+  --sidebar-bg-end: #f6faf7;
+  --sidebar-foreground: #64748b;
   --sidebar-foreground-active: #16a34a;
   --sidebar-border: #e5e7eb;
+  --sidebar-hover: #f3f4f6;
+
+  --brand-gradient: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+  --hero-gradient: linear-gradient(120deg, #16a34a 0%, #15803d 55%, #0d9488 130%);
+  --shadow-glow-brand: 0 8px 24px -8px rgba(22, 163, 74, 0.45);
 }
 
 @theme inline {
@@ -86,10 +92,122 @@ body {
   background-clip: padding-box;
 }
 
+.bg-brand-gradient {
+  background: var(--brand-gradient);
+}
+.shadow-glow-brand {
+  box-shadow: var(--shadow-glow-brand);
+}
+
 .focus-ring {
   outline: none;
 }
 .focus-ring:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------
+ * Motion — small, purely visual entrance/feedback animations. None of
+ * these affect layout or DOM structure; they're additive classes applied
+ * on top of existing markup. Respects prefers-reduced-motion globally.
+ * --------------------------------------------------------------------- */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes slide-in-panel-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes slide-in-panel-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-page-in {
+  animation: fade-in-up 0.28s ease-out both;
+}
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out both;
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-panel-right {
+  animation: slide-in-panel-right 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-panel-left {
+  animation: slide-in-panel-left 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-scale-in {
+  animation: scale-in 0.18s ease-out both;
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, var(--border) 25%, #f0f1f3 37%, var(--border) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-in,
+  .animate-fade-in,
+  .animate-slide-in-right,
+  .animate-scale-in,
+  .animate-panel-right,
+  .animate-panel-left,
+  .skeleton-shimmer {
+    animation: none;
+  }
 }

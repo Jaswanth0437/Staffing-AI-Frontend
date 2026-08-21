@@ -8,9 +8,11 @@ export function CompaniesTable({
   companies
 }) {
   if (companies.length === 0) {
-    return <EmptyState icon={<Building2 className="h-5 w-5" />} title="No companies found" description="Companies appear here once jobs are discovered for them." />;
+    return <div className="flex flex-1 items-center justify-center">
+        <EmptyState icon={<Building2 className="h-5 w-5" />} title="No companies found" description="Companies appear here once jobs are discovered for them." />
+      </div>;
   }
-  return <TableContainer className="max-h-[20rem] overflow-y-auto">
+  return <TableContainer className="flex-1 min-h-0 overflow-y-auto">
       <Table>
         <THead className="sticky top-0 z-10 bg-gray-50">
           <TR>

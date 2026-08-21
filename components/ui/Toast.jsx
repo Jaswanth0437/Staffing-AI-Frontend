@@ -37,7 +37,7 @@ export function ToastProvider({
   return <ToastContext.Provider value={value}>
       {children}
       <div className="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-full max-w-sm flex-col gap-2" aria-live="polite">
-        {toasts.map(t => <div key={t.id} role="alert" className={cn("pointer-events-auto flex items-start gap-3 rounded-lg border bg-surface p-3.5 shadow-lg", toneStyles[t.tone])}>
+        {toasts.map(t => <div key={t.id} role="alert" className={cn("animate-slide-in-right pointer-events-auto flex items-start gap-3 rounded-lg border bg-surface p-3.5 shadow-lg", toneStyles[t.tone])}>
             {toneIcons[t.tone]}
             <div className="flex-1">
               <p className="text-sm font-semibold text-foreground">{t.title}</p>
