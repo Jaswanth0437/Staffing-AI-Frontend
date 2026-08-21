@@ -36,14 +36,14 @@ export default function CompaniesPage() {
 
       {error && <ErrorState description={error} onRetry={refetch} />}
 
-      {!error && <Card>
+      {!error && <Card className="overflow-hidden">
           <div className="flex flex-col gap-4 border-b border-border px-5 py-4">
             <div className="relative max-w-sm">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input type="search" value={search} onChange={e => {
             setSearch(e.target.value);
             setPage(1);
-          }} placeholder="Search companies..." aria-label="Search companies" className="focus-ring h-9 w-full rounded-lg border border-border-strong bg-white pl-9 pr-3 text-sm placeholder:text-muted-foreground" />
+          }} placeholder="Search companies..." aria-label="Search companies" title="Search companies" className="focus-ring h-9 w-full rounded-lg border border-border-strong bg-white pl-9 pr-3 text-sm placeholder:text-muted-foreground" />
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <Select aria-label="Filter by location" value={location} onChange={e => {

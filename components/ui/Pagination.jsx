@@ -18,14 +18,14 @@ export function Pagination({
         <span className="font-medium text-foreground">{total}</span>
       </p>
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => onPageChange(page - 1)} disabled={page <= 1} aria-label="Previous page">
+        <Button variant="outline" size="sm" onClick={() => onPageChange(page - 1)} disabled={page <= 1} title="Previous page" aria-label="Previous page">
           <ChevronLeft className="h-4 w-4" />
           Previous
         </Button>
         <span className="text-sm text-muted-foreground">
           Page {page} of {totalPages}
         </span>
-        <Button variant="outline" size="sm" onClick={() => onPageChange(page + 1)} disabled={page >= totalPages} aria-label="Next page">
+        <Button variant="outline" size="sm" onClick={() => onPageChange(page + 1)} disabled={page >= totalPages} title="Next page" aria-label="Next page">
           Next
           <ChevronRight className="h-4 w-4" />
         </Button>

@@ -107,10 +107,9 @@ export default function CompanyDetailsPage({
             </dl>
           </CardBody>}
 
-        {tab === "contacts" && (company.contacts.length === 0 ? <EmptyState icon={<Users className="h-5 w-5" />} title="No contacts found" description="No contacts have been resolved for this company's leads yet." /> : <div className={TAB_PANEL_HEIGHT}>
-              <TableContainer>
+        {tab === "contacts" && (company.contacts.length === 0 ? <EmptyState icon={<Users className="h-5 w-5" />} title="No contacts found" description="No contacts have been resolved for this company's leads yet." /> : <TableContainer className={TAB_PANEL_HEIGHT}>
                 <Table>
-                  <THead>
+                  <THead className="sticky top-0 z-10 bg-gray-50">
                     <TR>
                       <TH>Name</TH>
                       <TH>Title</TH>
@@ -129,13 +128,11 @@ export default function CompanyDetailsPage({
                       </TR>)}
                   </TBody>
                 </Table>
-              </TableContainer>
-            </div>)}
+              </TableContainer>)}
 
-        {tab === "jobs" && (company.jobs.length === 0 ? <EmptyState icon={<Building2 className="h-5 w-5" />} title="No jobs found" description="No jobs discovered for this company yet." /> : <div className={TAB_PANEL_HEIGHT}>
-              <TableContainer>
+        {tab === "jobs" && (company.jobs.length === 0 ? <EmptyState icon={<Building2 className="h-5 w-5" />} title="No jobs found" description="No jobs discovered for this company yet." /> : <TableContainer className={TAB_PANEL_HEIGHT}>
                 <Table>
-                  <THead>
+                  <THead className="sticky top-0 z-10 bg-gray-50">
                     <TR>
                       <TH>Job Title</TH>
                       <TH>Location</TH>
@@ -158,13 +155,11 @@ export default function CompanyDetailsPage({
                       </TR>)}
                   </TBody>
                 </Table>
-              </TableContainer>
-            </div>)}
+              </TableContainer>)}
 
-        {tab === "leads" && (company.leads.length === 0 ? <EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="No leads have been created for this company yet." /> : <div className={TAB_PANEL_HEIGHT}>
-              <TableContainer>
+        {tab === "leads" && (company.leads.length === 0 ? <EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="No leads have been created for this company yet." /> : <TableContainer className={TAB_PANEL_HEIGHT}>
                 <Table>
-                  <THead>
+                  <THead className="sticky top-0 z-10 bg-gray-50">
                     <TR>
                       <TH>Name</TH>
                       <TH>Email</TH>
@@ -188,13 +183,11 @@ export default function CompanyDetailsPage({
               })}
                   </TBody>
                 </Table>
-              </TableContainer>
-            </div>)}
+              </TableContainer>)}
 
-        {tab === "emails" && (company.emails.length === 0 ? <EmptyState icon={<MailIcon className="h-5 w-5" />} title="No emails yet" description="Draft or send an email from one of this company's leads to see it here." /> : <div className={TAB_PANEL_HEIGHT}>
-              <TableContainer>
+        {tab === "emails" && (company.emails.length === 0 ? <EmptyState icon={<MailIcon className="h-5 w-5" />} title="No emails yet" description="Draft or send an email from one of this company's leads to see it here." /> : <TableContainer className={TAB_PANEL_HEIGHT}>
                 <Table>
-                  <THead>
+                  <THead className="sticky top-0 z-10 bg-gray-50">
                     <TR>
                       <TH>Recipient</TH>
                       <TH>Subject</TH>
@@ -221,8 +214,7 @@ export default function CompanyDetailsPage({
                       </TR>)}
                   </TBody>
                 </Table>
-              </TableContainer>
-            </div>)}
+              </TableContainer>)}
       </Card>
     </div>;
 }

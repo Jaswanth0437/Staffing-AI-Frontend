@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Badge } from "@/components/ui/Badge";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -20,7 +21,7 @@ import { CONTACT_TIER_LABELS } from "@/lib/constants";
 import { initials, orNotAvailable } from "@/lib/utils";
 
 function buildSignature(name) {
-  return `\n\nThanks and Regards\n${name}\nWinfomi - Salesforce CREST Partner\nPh: +91 82482 52320 | US: +1 (615) 314-6998`;
+  return `\n\nThanks and Regards\n${name}\nBusiness Development Executive\nWinfomi - Salesforce CREST Partner\nPh: +91 82482 52320 | US: +1 (615) 314-6998`;
 }
 const TIER_TONE = {
   job_poster: "success",
@@ -60,6 +61,7 @@ export default function LeadDetailsPage({
   const [generating, setGenerating] = useState(false);
   const [sending, setSending] = useState(false);
   const [draft, setDraft] = useState(null);
+  const [confirmSend, setConfirmSend] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -121,6 +123,7 @@ export default function LeadDetailsPage({
       });
       const sent = await sendEmail(draft.id);
       setDraft(sent);
+      setConfirmSend(false);
       refetchLead();
       toast({
         tone: "success",
@@ -168,7 +171,7 @@ export default function LeadDetailsPage({
             <CardHeader title={<span className="flex items-center gap-2">
                   Employee Match
                   {!matchesLoading && matches && (hasConfirmedMatch ? <Badge tone="success"><CheckCircle2 className="h-3 w-3" />Match Found</Badge> : <Badge tone="neutral"><XCircle className="h-3 w-3" />No Match Found</Badge>)}
-                </span>} subtitle="Internal review only — never shown to the recipient. The top-ranked candidate is used for outreach automatically." action={<Button variant="outline" size="sm" icon={<Sparkles className="h-3.5 w-3.5" />} loading={matching} onClick={handleMatch}>
+                </span>} subtitle="Internal review only — never shown to the recipient. The top-ranked candidate is used for outreach automatically." action={<Button variant="outline" size="sm" title={matches && matches.length > 0 ? "Re-match" : "Find matching employees"} icon={<Sparkles className="h-3.5 w-3.5" />} loading={matching} onClick={handleMatch}>
                   {matches && matches.length > 0 ? "Re-match" : "Find Matching Employees"}
                 </Button>} />
             {matchesLoading && <CardBody>
@@ -194,7 +197,7 @@ export default function LeadDetailsPage({
           </Card>
 
           <Card>
-            <CardHeader title="Email Review" subtitle="Editable before sending — no employee name or PII is referenced in the copy." action={<Button variant="outline" size="sm" icon={<Sparkles className="h-3.5 w-3.5" />} loading={generating} onClick={handleGenerate} disabled={!hasConfirmedMatch}>
+            <CardHeader title="Email Review" subtitle="Editable before sending — no employee name or PII is referenced in the copy." action={<Button variant="outline" size="sm" title={draft ? "Regenerate email" : "Generate email"} icon={<Sparkles className="h-3.5 w-3.5" />} loading={generating} onClick={handleGenerate} disabled={!hasConfirmedMatch}>
                   {draft ? "Regenerate" : "Generate Email"}
                 </Button>} />
             {!draft && <CardBody>
@@ -221,7 +224,7 @@ export default function LeadDetailsPage({
               ...prev,
               body: e.target.value
             }))} />
-                {sent ? <Badge tone="success" className="self-start">Sent</Badge> : <Button className="self-end" icon={<Send className="h-4 w-4" />} loading={sending} disabled={!draft.recipient} onClick={handleSend}>
+                {sent ? <Badge tone="success" className="self-start">Sent</Badge> : <Button className="self-end" title="Send email" icon={<Send className="h-4 w-4" />} disabled={!draft.recipient} onClick={() => setConfirmSend(true)}>
                     Send
                   </Button>}
               </CardBody>}
@@ -258,6 +261,11 @@ export default function LeadDetailsPage({
             </Card>}
         </div>
       </div>
+
+      <ConfirmDialog open={confirmSend} title="Send Email" description={<>
+            Send this email to <span className="font-medium">{draft?.recipient}</span>? This cannot be undone, and will also notify {" "}
+            <span className="font-medium">jashwanth.m@winfomi.com</span> with the match details.
+          </>} confirmLabel="Send" loading={sending} onConfirm={handleSend} onClose={() => setConfirmSend(false)} />
     </div>;
 }
 function Field({

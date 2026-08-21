@@ -50,9 +50,9 @@ export default function DashboardPage() {
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <Card className="lg:col-span-2">
+            <Card className="flex flex-col lg:col-span-2">
               <CardHeader title="Job discovery overview" subtitle="Breakdown of jobs discovered this period" />
-              <div className="px-5 py-5">
+              <div className="flex flex-1 items-center justify-center px-5 py-5">
                 {statsLoading || !stats ? <CardSkeleton /> : <JobDiscoveryChart discovered={stats.jobs_discovered} qualified={stats.qualified_jobs} rejected={stats.jobs_rejected} rate={stats.qualification_rate} />}
               </div>
             </Card>

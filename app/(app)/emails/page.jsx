@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Eye, Mail } from "lucide-react";
+import { Eye, Mail, Search } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
@@ -26,19 +26,37 @@ export default function EmailsPage() {
     refetch
   } = useEmails();
   const [selected, setSelected] = useState(null);
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!emails) return [];
+    if (!search) return emails;
+    const q = search.toLowerCase();
+    return emails.filter(e => `${e.recipient ?? ""} ${e.subject ?? ""}`.toLowerCase().includes(q));
+  }, [emails, search]);
+
   return <div>
       <PageHeader title="Emails" subtitle="Every outreach email drafted or sent across all campaigns." />
 
       {error && <ErrorState description={error} onRetry={refetch} />}
 
-      {!error && <Card>
+      {!error && <Card className="overflow-hidden">
+          <div className="border-b border-border px-5 py-4">
+            <div className="relative max-w-sm">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search emails..." aria-label="Search emails" title="Search emails" className="focus-ring h-9 w-full rounded-lg border border-border-strong bg-white pl-9 pr-3 text-sm placeholder:text-muted-foreground" />
+            </div>
+          </div>
+
           {loading && <TableSkeleton rows={5} cols={4} />}
 
           {!loading && (!emails || emails.length === 0) && <EmptyState icon={<Mail className="h-5 w-5" />} title="No emails yet" description="Emails will appear here once a lead's outreach copy has been generated." />}
 
-          {!loading && emails && emails.length > 0 && <TableContainer>
+          {!loading && emails && emails.length > 0 && filtered.length === 0 && <EmptyState icon={<Mail className="h-5 w-5" />} title="No emails found" description="Try adjusting your search." />}
+
+          {!loading && filtered.length > 0 && <TableContainer className="max-h-[20rem] overflow-y-auto">
               <Table>
-                <THead>
+                <THead className="sticky top-0 z-10 bg-gray-50">
                   <TR>
                     <TH>Recipient</TH>
                     <TH>Subject</TH>
@@ -48,7 +66,7 @@ export default function EmailsPage() {
                   </TR>
                 </THead>
                 <TBody>
-                  {emails.map(email => <TR key={email.id} className="cursor-pointer" onClick={() => setSelected(email)}>
+                  {filtered.map(email => <TR key={email.id} className="cursor-pointer" onClick={() => setSelected(email)}>
                       <TD className="font-medium text-foreground">{orNotAvailable(email.recipient)}</TD>
                       <TD className="text-muted-foreground">{orNotAvailable(email.subject)}</TD>
                       <TD>
@@ -58,7 +76,7 @@ export default function EmailsPage() {
                       </TD>
                       <TD className="text-muted-foreground">{email.sent_at ? formatDateTime(email.sent_at) : "—"}</TD>
                       <TD className="text-right">
-                        {email.campaign_id && <Link href={`/campaigns/${email.campaign_id}/leads/${email.lead_id}`} onClick={e => e.stopPropagation()} className="focus-ring inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
+                        {email.campaign_id && <Link href={`/campaigns/${email.campaign_id}/leads/${email.lead_id}`} onClick={e => e.stopPropagation()} title="View lead" className="focus-ring inline-flex h-8 items-center gap-1.5 whitespace-nowrap rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
                             <Eye className="h-3.5 w-3.5" />
                             View Lead
                           </Link>}

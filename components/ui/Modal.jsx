@@ -36,7 +36,7 @@ export function Modal({
           <h2 id="modal-title" className="text-sm font-semibold text-foreground">
             {title}
           </h2>
-          <button onClick={onClose} aria-label="Close dialog" className="focus-ring rounded-lg p-1 text-muted-foreground hover:bg-gray-100">
+          <button onClick={onClose} title="Close dialog" aria-label="Close dialog" className="focus-ring rounded-lg p-1 text-muted-foreground hover:bg-gray-100">
             <X className="h-4 w-4" />
           </button>
         </div>

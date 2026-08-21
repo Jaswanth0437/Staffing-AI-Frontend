@@ -18,7 +18,7 @@ export function AppShell({
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
           <div className="relative z-10 h-full w-64">
             <Sidebar collapsed={false} onNavigate={() => setMobileOpen(false)} />
-            <button onClick={() => setMobileOpen(false)} aria-label="Close navigation menu" className="focus-ring absolute right-[-40px] top-4 rounded-lg bg-black/40 p-1.5 text-white">
+            <button onClick={() => setMobileOpen(false)} title="Close navigation menu" aria-label="Close navigation menu" className="focus-ring absolute right-[-40px] top-4 rounded-lg bg-black/40 p-1.5 text-white">
               <X className="h-5 w-5" />
             </button>
           </div>

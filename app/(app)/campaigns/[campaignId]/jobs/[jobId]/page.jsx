@@ -105,13 +105,13 @@ export default function CampaignJobDetailsPage({
             {job.job_title}
             {pending ? <span className="text-sm font-medium text-muted-foreground">Pending</span> : <QualificationBadge qualified={qualified} />}
           </span>} subtitle={`${job.company_name} · ${job.job_location ?? "—"}`} actions={<>
-            {job.url && <a href={job.url} target="_blank" rel="noreferrer" className="focus-ring inline-flex h-9 items-center gap-2 rounded-lg border border-border-strong bg-white px-4 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
+            {job.url && <a href={job.url} target="_blank" rel="noreferrer" title="View original posting" className="focus-ring inline-flex h-9 items-center gap-2 rounded-lg border border-border-strong bg-white px-4 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
                 <ExternalLink className="h-4 w-4" />
                 View Original Posting
               </a>}
-            {!pending && qualified && (job.lead_id ? <Button onClick={handleViewLead} icon={<UserPlus className="h-4 w-4" />}>
+            {!pending && qualified && (job.lead_id ? <Button title="View lead" onClick={handleViewLead} icon={<UserPlus className="h-4 w-4" />}>
                   View Lead
-                </Button> : <Button onClick={handleCreateLead} loading={creating} icon={<UserPlus className="h-4 w-4" />}>
+                </Button> : <Button title="Create lead" onClick={handleCreateLead} loading={creating} icon={<UserPlus className="h-4 w-4" />}>
                   Create Lead
                 </Button>)}
           </>} />
@@ -146,10 +146,10 @@ export default function CampaignJobDetailsPage({
 
               {!pending && <div className="mt-4 flex items-center gap-2 border-t border-border pt-4">
                   <span className="text-xs text-muted-foreground">Disagree with this verdict?</span>
-                  <Button size="sm" variant="outline" icon={<ThumbsUp className="h-3.5 w-3.5" />} loading={overriding === "qualified"} disabled={qualified} onClick={() => handleOverride("qualified")}>
+                  <Button size="sm" variant="outline" title="Mark qualified" icon={<ThumbsUp className="h-3.5 w-3.5" />} loading={overriding === "qualified"} disabled={qualified} onClick={() => handleOverride("qualified")}>
                     Mark Qualified
                   </Button>
-                  <Button size="sm" variant="outline" icon={<ThumbsDown className="h-3.5 w-3.5" />} loading={overriding === "rejected"} disabled={!qualified} onClick={() => handleOverride("rejected")}>
+                  <Button size="sm" variant="outline" title="Mark rejected" icon={<ThumbsDown className="h-3.5 w-3.5" />} loading={overriding === "rejected"} disabled={!qualified} onClick={() => handleOverride("rejected")}>
                     Mark Rejected
                   </Button>
                 </div>}
