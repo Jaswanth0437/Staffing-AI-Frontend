@@ -11,9 +11,9 @@ export function ContactsTable({
   if (contacts.length === 0) {
     return <EmptyState icon={<ContactIcon className="h-5 w-5" />} title="No contacts found" description="Contacts appear here once a lead resolves one via Apollo." />;
   }
-  return <TableContainer>
+  return <TableContainer className="max-h-[20rem] overflow-y-auto">
       <Table>
-        <THead>
+        <THead className="sticky top-0 z-10 bg-gray-50">
           <TR>
             <TH>Name</TH>
             <TH>Tier</TH>
@@ -37,7 +37,7 @@ export function ContactsTable({
               <TD className="text-muted-foreground">{orNotAvailable(contact.email)}</TD>
               <TD className="text-muted-foreground">{orNotAvailable(contact.phone)}</TD>
               <TD>
-                {contact.linkedin_url ? <a href={contact.linkedin_url} target="_blank" rel="noreferrer" className="text-brand hover:underline">
+                {contact.linkedin_url ? <a href={contact.linkedin_url} target="_blank" rel="noreferrer" title="View LinkedIn profile" className="text-brand hover:underline">
                     View
                   </a> : <span className="text-muted-foreground">Not available</span>}
               </TD>
@@ -45,7 +45,7 @@ export function ContactsTable({
                 <Badge tone="brand">{contact.source ?? "Apollo"}</Badge>
               </TD>
               <TD className="text-right">
-                {contact.campaign_id ? <Link href={`/campaigns/${contact.campaign_id}/leads/${contact.lead_id}`} className="focus-ring inline-flex h-8 items-center rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
+                {contact.campaign_id ? <Link href={`/campaigns/${contact.campaign_id}/leads/${contact.lead_id}`} title="View lead" className="focus-ring inline-flex h-8 items-center rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
                     View Lead
                   </Link> : <span className="text-muted-foreground">—</span>}
               </TD>

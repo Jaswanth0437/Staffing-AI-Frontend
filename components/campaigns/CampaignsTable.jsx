@@ -1,23 +1,28 @@
 import Link from "next/link";
-import { Megaphone } from "lucide-react";
+import { Megaphone, RefreshCw, Trash2 } from "lucide-react";
 import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
+import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CampaignStatusBadge } from "./CampaignStatusBadge";
-import { formatDate } from "@/lib/utils";
+import { formatDateTime } from "@/lib/utils";
 export function CampaignsTable({
-  campaigns
+  campaigns,
+  recheckingId,
+  onRecheckRequest,
+  onDeleteRequest
 }) {
   if (campaigns.length === 0) {
-    return <EmptyState icon={<Megaphone className="h-5 w-5" />} title="No campaigns yet" description="Create your first campaign to start pulling jobs from Apify." />;
+    return <EmptyState icon={<Megaphone className="h-5 w-5" />} title="No campaigns found" description="Create your first campaign to start pulling jobs from Apify." />;
   }
-  return <TableContainer>
+  return <TableContainer className="max-h-[20rem] overflow-y-auto">
       <Table>
-        <THead>
+        <THead className="sticky top-0 z-10 bg-gray-50">
           <TR>
             <TH>Campaign Name</TH>
             <TH>Role</TH>
             <TH>Status</TH>
             <TH>Created</TH>
+            <TH>Last Checked</TH>
             <TH className="text-right">Actions</TH>
           </TR>
         </THead>
@@ -32,11 +37,20 @@ export function CampaignsTable({
               <TD>
                 <CampaignStatusBadge status={campaign.status} />
               </TD>
-              <TD className="text-muted-foreground">{formatDate(campaign.created_at)}</TD>
+              <TD className="text-muted-foreground">{formatDateTime(campaign.created_at)}</TD>
+              <TD className="text-muted-foreground">{campaign.last_checked_at ? formatDateTime(campaign.last_checked_at) : "Never"}</TD>
               <TD className="text-right">
-                <Link href={`/campaigns/${campaign.id}`} className="focus-ring inline-flex h-8 items-center rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
-                  View
-                </Link>
+                <div className="flex items-center justify-end gap-2">
+                  <Link href={`/campaigns/${campaign.id}`} title="View campaign" className="focus-ring inline-flex h-8 items-center rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
+                    View
+                  </Link>
+                  <Button variant="outline" size="icon" title="Recheck campaign" aria-label="Recheck campaign" loading={recheckingId === campaign.id} disabled={campaign.status === "running"} onClick={() => onRecheckRequest(campaign)}>
+                    <RefreshCw className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="outline" size="icon" title="Delete campaign" aria-label="Delete campaign" onClick={() => onDeleteRequest(campaign)}>
+                    <Trash2 className="h-3.5 w-3.5 text-danger" />
+                  </Button>
+                </div>
               </TD>
             </TR>)}
         </TBody>

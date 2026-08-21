@@ -12,9 +12,9 @@ export function LeadsTable({
   if (leads.length === 0) {
     return <EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="Leads appear here once a qualified job is turned into a lead from a campaign." />;
   }
-  return <TableContainer>
+  return <TableContainer className="max-h-[20rem] overflow-y-auto">
       <Table>
-        <THead>
+        <THead className="sticky top-0 z-10 bg-gray-50">
           <TR>
             <TH>Contact</TH>
             <TH>Tier</TH>
@@ -42,7 +42,7 @@ export function LeadsTable({
               </TD>
               <TD className="text-muted-foreground">{formatDate(lead.created_at)}</TD>
               <TD className="text-right">
-                <Link href={`/campaigns/${lead.campaign_id}/leads/${lead.id}`} className="focus-ring inline-flex h-8 items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
+                <Link href={`/campaigns/${lead.campaign_id}/leads/${lead.id}`} title="View lead" className="focus-ring inline-flex h-8 items-center gap-1.5 rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
                   <Eye className="h-3.5 w-3.5" />
                   View
                 </Link>

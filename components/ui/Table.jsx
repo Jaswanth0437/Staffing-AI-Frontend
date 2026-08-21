@@ -1,8 +1,16 @@
 import { cn } from "@/lib/utils";
 export function TableContainer({
-  children
+  children,
+  className
 }) {
-  return <div className="overflow-x-auto">{children}</div>;
+  // Callers that also need a sticky <THead> must pass the vertical
+  // max-height/overflow-y HERE, on this same element, not on a separate
+  // wrapping div — per the CSS overflow spec, setting only overflow-x
+  // implicitly computes overflow-y to "auto" too on whichever element
+  // has it, so a second unbounded wrapper around this one becomes an
+  // (unbounded, so invisible) scroll container of its own and steals the
+  // sticky positioning context away from the one that actually scrolls.
+  return <div className={cn("overflow-x-auto", className)}>{children}</div>;
 }
 export function Table({
   className,

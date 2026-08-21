@@ -30,7 +30,7 @@ export function Drawer({
       <div className={cn("relative z-10 flex h-full w-full flex-col bg-surface shadow-xl", width, side === "right" ? "ml-auto" : "mr-auto")}>
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-          <button onClick={onClose} aria-label="Close panel" className="focus-ring rounded-lg p-1 text-muted-foreground hover:bg-gray-100">
+          <button onClick={onClose} title="Close panel" aria-label="Close panel" className="focus-ring rounded-lg p-1 text-muted-foreground hover:bg-gray-100">
             <X className="h-4 w-4" />
           </button>
         </div>

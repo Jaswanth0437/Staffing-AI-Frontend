@@ -10,9 +10,9 @@ export function CompaniesTable({
   if (companies.length === 0) {
     return <EmptyState icon={<Building2 className="h-5 w-5" />} title="No companies found" description="Companies appear here once jobs are discovered for them." />;
   }
-  return <TableContainer>
+  return <TableContainer className="max-h-[20rem] overflow-y-auto">
       <Table>
-        <THead>
+        <THead className="sticky top-0 z-10 bg-gray-50">
           <TR>
             <TH>Company</TH>
             <TH>Location</TH>
@@ -38,7 +38,7 @@ export function CompaniesTable({
               </TD>
               <TD className="text-muted-foreground">{company.lead_count}</TD>
               <TD className="text-right">
-                <Link href={`/companies/${company.id}`} className="focus-ring inline-flex h-8 items-center rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
+                <Link href={`/companies/${company.id}`} title="View company details" className="focus-ring inline-flex h-8 items-center rounded-lg border border-border-strong bg-white px-3 text-sm font-medium text-foreground shadow-sm hover:bg-gray-50">
                   View Details
                 </Link>
               </TD>

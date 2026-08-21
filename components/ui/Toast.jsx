@@ -43,7 +43,7 @@ export function ToastProvider({
               <p className="text-sm font-semibold text-foreground">{t.title}</p>
               {t.description && <p className="mt-0.5 text-sm text-muted-foreground">{t.description}</p>}
             </div>
-            <button onClick={() => remove(t.id)} aria-label="Dismiss notification" className="focus-ring rounded p-0.5 text-muted-foreground hover:bg-black/5">
+            <button onClick={() => remove(t.id)} title="Dismiss notification" aria-label="Dismiss notification" className="focus-ring rounded p-0.5 text-muted-foreground hover:bg-black/5">
               <X className="h-4 w-4" />
             </button>
           </div>)}

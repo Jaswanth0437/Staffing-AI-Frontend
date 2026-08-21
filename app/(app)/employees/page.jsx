@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { IdCard, Pencil, RefreshCw, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { IdCard, Pencil, RefreshCw, Search, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/Card";
 import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
@@ -31,6 +31,14 @@ export default function EmployeesPage() {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(null);
   const [removing, setRemoving] = useState(false);
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!employees) return [];
+    if (!search) return employees;
+    const q = search.toLowerCase();
+    return employees.filter(e => `${e.name} ${e.role_title ?? ""} ${(e.skills ?? []).join(" ")}`.toLowerCase().includes(q));
+  }, [employees, search]);
 
   async function handleSync() {
     setSyncing(true);
@@ -91,33 +99,42 @@ export default function EmployeesPage() {
   }
 
   return <div>
-      <PageHeader title="Employees" subtitle="Your bench, synced from Salesforce — matched against lead job requirements in the campaign flow." actions={<Button icon={<RefreshCw className="h-4 w-4" />} loading={syncing} onClick={handleSync}>
+      <PageHeader title="Employees" subtitle="Your bench, synced from Salesforce — matched against lead job requirements in the campaign flow." actions={<Button title="Sync from Salesforce" icon={<RefreshCw className="h-4 w-4" />} loading={syncing} onClick={handleSync}>
             Sync from Salesforce
           </Button>} />
 
       {error && <ErrorState description={error} onRetry={refetch} />}
 
-      {!error && <Card>
+      {!error && <Card className="overflow-hidden">
+          <div className="border-b border-border px-5 py-4">
+            <div className="relative max-w-sm">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input type="search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search employees..." aria-label="Search employees" title="Search employees" className="focus-ring h-9 w-full rounded-lg border border-border-strong bg-white pl-9 pr-3 text-sm placeholder:text-muted-foreground" />
+            </div>
+          </div>
+
           {loading && <TableSkeleton rows={5} cols={4} />}
 
           {!loading && (!employees || employees.length === 0) && <EmptyState icon={<IdCard className="h-5 w-5" />} title="No employees yet" description="Click Sync from Salesforce to pull the bench roster before matching leads." />}
 
-          {!loading && employees && employees.length > 0 && <TableContainer>
-              <Table>
-                <THead>
+          {!loading && employees && employees.length > 0 && filtered.length === 0 && <EmptyState icon={<IdCard className="h-5 w-5" />} title="No employees found" description="Try adjusting your search." />}
+
+          {!loading && filtered.length > 0 && <TableContainer className="max-h-[20rem] overflow-y-auto">
+              <Table className="table-fixed">
+                <THead className="sticky top-0 z-10 bg-gray-50">
                   <TR>
-                    <TH>Name</TH>
-                    <TH>Role</TH>
-                    <TH>Skills</TH>
-                    <TH>Seniority</TH>
-                    <TH>Summary</TH>
-                    <TH className="text-right">Actions</TH>
+                    <TH className="w-[12%]">Name</TH>
+                    <TH className="w-[12%]">Role</TH>
+                    <TH className="w-[32%]">Skills</TH>
+                    <TH className="w-[16%]">Seniority</TH>
+                    <TH className="w-[18%]">Summary</TH>
+                    <TH className="w-[10%] text-right">Actions</TH>
                   </TR>
                 </THead>
                 <TBody>
-                  {employees.map(employee => <TR key={employee.id}>
-                      <TD className="font-medium text-foreground">{employee.name}</TD>
-                      <TD className="text-muted-foreground">{orNotAvailable(employee.role_title)}</TD>
+                  {filtered.map(employee => <TR key={employee.id}>
+                      <TD className="truncate font-medium text-foreground">{employee.name}</TD>
+                      <TD className="truncate text-muted-foreground">{orNotAvailable(employee.role_title)}</TD>
                       <TD>
                         <div className="flex flex-wrap gap-1.5">
                           {employee.skills.map(skill => <Badge key={skill} tone="neutral">
@@ -125,14 +142,14 @@ export default function EmployeesPage() {
                             </Badge>)}
                         </div>
                       </TD>
-                      <TD className="text-muted-foreground">{orNotAvailable(employee.seniority)}</TD>
-                      <TD className="max-w-sm truncate text-muted-foreground">{orNotAvailable(employee.summary)}</TD>
+                      <TD className="truncate text-muted-foreground">{orNotAvailable(employee.seniority)}</TD>
+                      <TD className="truncate text-muted-foreground">{orNotAvailable(employee.summary)}</TD>
                       <TD className="text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button variant="outline" size="icon" aria-label="Edit employee" onClick={() => setEditing(employee)}>
+                          <Button variant="outline" size="icon" title="Edit employee" aria-label="Edit employee" onClick={() => setEditing(employee)}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
-                          <Button variant="outline" size="icon" aria-label="Delete employee" onClick={() => setDeleting(employee)}>
+                          <Button variant="outline" size="icon" title="Delete employee" aria-label="Delete employee" onClick={() => setDeleting(employee)}>
                             <Trash2 className="h-3.5 w-3.5 text-danger" />
                           </Button>
                         </div>

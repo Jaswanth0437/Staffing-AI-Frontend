@@ -15,12 +15,23 @@ export default function NewCampaignPage() {
   async function handleCreate(payload) {
     setCreating(true);
     try {
-      const campaign = await createCampaign(payload);
-      toast({
-        tone: "success",
-        title: "Campaign created",
-        description: `${campaign.name} is now discovering jobs from Apify in the background.`
-      });
+      const {
+        campaign,
+        is_duplicate: isDuplicate
+      } = await createCampaign(payload);
+      if (isDuplicate) {
+        toast({
+          tone: "info",
+          title: "You've already created this requirement",
+          description: `Matches "${campaign.name}" — taking you there instead of creating a duplicate.`
+        });
+      } else {
+        toast({
+          tone: "success",
+          title: "Campaign created",
+          description: `${campaign.name} is now discovering jobs from Apify in the background.`
+        });
+      }
       router.push(`/campaigns/${campaign.id}`);
     } catch (err) {
       toast({

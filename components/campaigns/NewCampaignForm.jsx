@@ -75,10 +75,10 @@ export function NewCampaignForm({
       </div>
 
       <div className="mt-5 flex items-center gap-2">
-        <Button type="submit" loading={loading} icon={<Plus className="h-4 w-4" />}>
+        <Button type="submit" title="Create campaign" loading={loading} icon={<Plus className="h-4 w-4" />}>
           Create Campaign
         </Button>
-        <Button type="button" variant="outline" onClick={handleReset} icon={<RotateCcw className="h-4 w-4" />}>
+        <Button type="button" variant="outline" title="Reset form" onClick={handleReset} icon={<RotateCcw className="h-4 w-4" />}>
           Reset
         </Button>
       </div>

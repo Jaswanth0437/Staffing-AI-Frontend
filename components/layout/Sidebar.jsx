@@ -29,10 +29,10 @@ export function Sidebar({
         <div className="relative h-7 w-7 shrink-0">
           <Image src="/Winlogo.png" alt={APP_NAME} fill className="object-contain" priority />
         </div>
-        {!collapsed && <span className="truncate text-sm font-semibold tracking-tight text-foreground">
+        {!collapsed && <span className="truncate text-base font-semibold tracking-tight text-foreground">
             {APP_NAME}
           </span>}
-        {onToggle && <button onClick={onToggle} className="focus-ring ml-auto hidden shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-gray-100 md:flex" aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
+        {onToggle && <button onClick={onToggle} className="focus-ring ml-auto hidden shrink-0 rounded-lg p-1 text-muted-foreground hover:bg-gray-100 md:flex" title={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}>
             {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
           </button>}
       </div>
@@ -60,7 +60,7 @@ export function Sidebar({
             </span>}
         </Link>
 
-        <button className={cn("focus-ring mt-2 flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left hover:bg-gray-100", collapsed && "justify-center px-0")}>
+        <button title="Account" aria-label="Account" className={cn("focus-ring mt-2 flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left hover:bg-gray-100", collapsed && "justify-center px-0")}>
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-xs font-semibold text-brand">
             {initials(currentUser.name)}
           </span>
