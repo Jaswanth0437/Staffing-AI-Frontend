@@ -43,7 +43,7 @@ export function TH({
   className,
   ...props
 }) {
-  return <th className={cn("px-4 py-3.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground", className)} {...props} />;
+  return <th className={cn("px-4 py-3.5 text-xs font-semibold text-muted-foreground", className)} {...props} />;
 }
 export function TD({
   className,

@@ -25,8 +25,26 @@ export function Sidebar({
   const currentUser = useCurrentUser();
   return <nav aria-label="Primary" style={{
     background: "linear-gradient(180deg, var(--sidebar-bg) 0%, var(--sidebar-bg-end) 100%)"
-  }} className={cn("flex h-full flex-col border-r border-[var(--sidebar-border)] transition-[width] duration-200", collapsed ? "w-[68px]" : "w-64")}>
-      <div className="flex h-14 items-center gap-2.5 border-b border-[var(--sidebar-border)] px-4">
+  }} className={cn("relative flex h-full flex-col overflow-hidden border-r border-[var(--sidebar-border)] transition-[width] duration-200", collapsed ? "w-[68px]" : "w-64")}>
+      {!collapsed && <>
+          <svg className="pointer-events-none absolute inset-x-0 bottom-0 h-56 w-full opacity-[0.6]" style={{
+        maskImage: "linear-gradient(to top, black 0%, transparent 100%)",
+        WebkitMaskImage: "linear-gradient(to top, black 0%, transparent 100%)"
+      }} aria-hidden="true">
+            <defs>
+              <pattern id="sidebar-dots" width="16" height="16" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="1.3" fill="var(--brand)" fillOpacity="0.35" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#sidebar-dots)" />
+          </svg>
+          <svg className="pointer-events-none absolute -bottom-10 -left-10 h-44 w-44 opacity-[0.12]" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+            <circle cx="50" cy="50" r="49" stroke="var(--brand)" strokeWidth="1.5" />
+            <circle cx="50" cy="50" r="33" stroke="var(--brand)" strokeWidth="1.5" />
+            <circle cx="50" cy="50" r="17" stroke="var(--brand)" strokeWidth="1.5" />
+          </svg>
+        </>}
+      <div className="relative flex h-14 shrink-0 items-center gap-2.5 border-b border-[var(--sidebar-border)] px-4">
         <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-soft shadow-sm">
           <Image src="/Winlogo.png" alt={APP_NAME} width={20} height={20} className="object-contain" priority />
         </div>

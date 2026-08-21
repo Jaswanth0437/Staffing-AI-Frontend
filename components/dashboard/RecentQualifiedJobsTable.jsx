@@ -13,11 +13,11 @@ export function RecentQualifiedJobsTable({
 }) {
   const qualified = jobs?.filter(j => j.qualified).slice(0, 5);
   return <Card>
-      <CardHeader title="Recent qualified jobs" subtitle="Latest jobs that passed your qualification rules" action={<Link href="/campaigns" className="focus-ring rounded text-sm font-medium text-brand hover:underline">
-            View all
+      <CardHeader title="Recent Qualified Jobs" subtitle="Latest Jobs That Passed Your Qualification Rules" action={<Link href="/campaigns" className="focus-ring rounded text-sm font-medium text-brand hover:underline">
+            View All
           </Link>} />
       {loading && <TableSkeleton rows={5} cols={7} />}
-      {!loading && qualified && qualified.length === 0 && <EmptyState icon={<Briefcase className="h-5 w-5" />} title="No qualified jobs yet" description="Run a campaign to start discovering qualified opportunities." />}
+      {!loading && qualified && qualified.length === 0 && <EmptyState icon={<Briefcase className="h-5 w-5" />} title="No Qualified Jobs Yet" description="Run A Campaign To Start Discovering Qualified Opportunities." />}
       {!loading && qualified && qualified.length > 0 && <TableContainer>
           <Table>
             <THead>

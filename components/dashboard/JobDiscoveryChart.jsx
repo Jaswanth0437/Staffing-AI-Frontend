@@ -10,10 +10,10 @@ export function JobDiscoveryChart({
   const gradient = `conic-gradient(var(--success) 0% ${qualifiedPct}%, var(--danger) ${qualifiedPct}% ${qualifiedPct + rejectedPct}%, #e5e7eb ${qualifiedPct + rejectedPct}% 100%)`;
   return <div className="flex flex-col items-center gap-8 sm:flex-row sm:justify-around">
       <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-        <Metric label="Jobs discovered" value={discovered} />
-        <Metric label="Qualified jobs" value={qualified} tone="success" />
-        <Metric label="Rejected jobs" value={rejected} tone="danger" />
-        <Metric label="Qualification rate" value={`${rate}%`} tone="brand" />
+        <Metric label="Jobs Discovered" value={discovered} />
+        <Metric label="Qualified Jobs" value={qualified} tone="success" />
+        <Metric label="Rejected Jobs" value={rejected} tone="danger" />
+        <Metric label="Qualification Rate" value={`${rate}%`} tone="brand" />
       </div>
 
       <div className="flex items-center gap-6">

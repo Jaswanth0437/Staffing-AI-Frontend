@@ -11,7 +11,7 @@ export function AppShell({
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
-  return <div className="flex h-screen overflow-hidden bg-background">
+  return <div className="app-canvas flex h-screen overflow-hidden">
       <div className="hidden md:block">
         <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(c => !c)} />
       </div>

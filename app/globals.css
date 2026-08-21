@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f8fa;
+  --background: #f6f8f7;
   --surface: #ffffff;
   --foreground: #111827;
   --muted-foreground: #6b7280;
@@ -76,6 +76,18 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
+/* The actual visible canvas behind every page — AppShell's root element,
+   which is opaque and sits on top of <body>, so the wash has to live here
+   rather than on <body> to ever be seen. Two very soft, low-opacity color
+   washes instead of a flat gray, subtle enough not to compete with card
+   content sitting on top. */
+.app-canvas {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(1100px 550px at 105% -10%, rgba(22, 163, 74, 0.07), transparent 60%),
+    radial-gradient(900px 500px at -8% 20%, rgba(13, 148, 136, 0.05), transparent 55%);
+}
+
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -141,6 +153,20 @@ body {
     transform: translateX(0);
   }
 }
+@keyframes slide-out-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+    max-height: 200px;
+    margin-bottom: 0.5rem;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(16px);
+    max-height: 0;
+    margin-bottom: 0;
+  }
+}
 @keyframes slide-in-panel-right {
   from {
     transform: translateX(100%);
@@ -175,6 +201,16 @@ body {
     transform: scale(1);
   }
 }
+@keyframes scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
 
 .animate-page-in {
   animation: fade-in-up 0.28s ease-out both;
@@ -185,6 +221,9 @@ body {
 .animate-slide-in-right {
   animation: slide-in-right 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+.animate-slide-out-right {
+  animation: slide-out-right 0.18s ease-in both;
+}
 .animate-panel-right {
   animation: slide-in-panel-right 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -193,6 +232,18 @@ body {
 }
 .animate-scale-in {
   animation: scale-in 0.18s ease-out both;
+}
+.animate-scale-out {
+  animation: scale-out 0.15s ease-in both;
+}
+.animate-fade-out {
+  animation: fade-in 0.15s ease-in both reverse;
+}
+.animate-panel-out-right {
+  animation: slide-in-panel-right 0.2s cubic-bezier(0.4, 0, 1, 1) both reverse;
+}
+.animate-panel-out-left {
+  animation: slide-in-panel-left 0.2s cubic-bezier(0.4, 0, 1, 1) both reverse;
 }
 .skeleton-shimmer {
   background: linear-gradient(90deg, var(--border) 25%, #f0f1f3 37%, var(--border) 63%);
@@ -203,10 +254,15 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .animate-page-in,
   .animate-fade-in,
+  .animate-fade-out,
   .animate-slide-in-right,
+  .animate-slide-out-right,
   .animate-scale-in,
+  .animate-scale-out,
   .animate-panel-right,
   .animate-panel-left,
+  .animate-panel-out-right,
+  .animate-panel-out-left,
   .skeleton-shimmer {
     animation: none;
   }

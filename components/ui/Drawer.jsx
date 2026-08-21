@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDelayedUnmount } from "@/hooks/useDelayedUnmount";
 export function Drawer({
   open,
   onClose,
@@ -12,6 +13,7 @@ export function Drawer({
   side = "right",
   width = "max-w-md"
 }) {
+  const [shouldRender, closing] = useDelayedUnmount(open, 200);
   useEffect(() => {
     if (!open) return;
     const onKey = e => {
@@ -24,10 +26,10 @@ export function Drawer({
       document.body.style.overflow = "";
     };
   }, [open, onClose]);
-  if (!open) return null;
+  if (!shouldRender) return null;
   return <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex">
-      <div className="animate-fade-in absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-      <div className={cn("relative z-10 flex h-full w-full flex-col bg-surface shadow-xl", width, side === "right" ? "animate-panel-right ml-auto" : "animate-panel-left mr-auto")}>
+      <div className={cn("absolute inset-0 bg-black/40", closing ? "animate-fade-out" : "animate-fade-in")} onClick={onClose} aria-hidden="true" />
+      <div className={cn("relative z-10 flex h-full w-full flex-col bg-surface shadow-xl", width, side === "right" ? "ml-auto" : "mr-auto", closing ? (side === "right" ? "animate-panel-out-right" : "animate-panel-out-left") : (side === "right" ? "animate-panel-right" : "animate-panel-left"))}>
         <div className="flex items-center justify-between border-b border-border px-5 py-4">
           <h2 className="text-sm font-semibold text-foreground">{title}</h2>
           <button onClick={onClose} title="Close panel" aria-label="Close panel" className="focus-ring rounded-lg p-1 text-muted-foreground hover:bg-gray-100">

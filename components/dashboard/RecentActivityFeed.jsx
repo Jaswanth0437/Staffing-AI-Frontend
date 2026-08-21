@@ -2,7 +2,7 @@ import { Activity } from "lucide-react";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, titleCaseSentence } from "@/lib/utils";
 
 // Color-codes each timeline dot by skimming the activity's own message —
 // there's no dedicated "severity" field on ActivityLog, so this is a best
@@ -21,7 +21,7 @@ export function RecentActivityFeed({
   loading
 }) {
   return <Card>
-      <CardHeader title="Recent activity" subtitle="Latest updates across your pipeline" />
+      <CardHeader title="Recent Activity" subtitle="Latest Updates Across Your Pipeline" />
       <div className="max-h-[22rem] overflow-y-auto px-5 py-2">
         {loading && Array.from({
         length: 4
@@ -32,7 +32,7 @@ export function RecentActivityFeed({
                 <Skeleton className="mt-2 h-3 w-1/2" />
               </div>
             </div>)}
-        {!loading && items && items.length === 0 && <EmptyState icon={<Activity className="h-5 w-5" />} title="No recent activity" description="Activity will appear here as leads move through your pipeline." />}
+        {!loading && items && items.length === 0 && <EmptyState icon={<Activity className="h-5 w-5" />} title="No Recent Activity" description="Activity Will Appear Here As Leads Move Through Your Pipeline." />}
         {!loading && items?.map((item, i) => <div key={item.id} className="relative flex gap-3">
               <div className="flex flex-col items-center pt-1.5">
                 <span className={`h-2.5 w-2.5 shrink-0 rounded-full ring-4 ring-surface ${dotColor(item.description)}`} />
@@ -40,7 +40,7 @@ export function RecentActivityFeed({
               </div>
               <div className="min-w-0 pb-4">
                 <p className="truncate text-sm font-medium text-foreground">{item.label}</p>
-                <p className="truncate text-sm text-muted-foreground">{item.description}</p>
+                <p className="truncate text-sm text-muted-foreground">{titleCaseSentence(item.description)}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {formatDateTime(item.timestamp)}
                 </p>
