@@ -10,6 +10,7 @@ import { TableSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LeadsTable } from "@/components/leads/LeadsTable";
 import { useLeads } from "@/hooks/useLeads";
+import { useSortableData } from "@/hooks/useSortableData";
 const PAGE_SIZE = 10;
 
 // Real backend lead.status enum (see backend/models.py's Lead).
@@ -38,7 +39,8 @@ export default function LeadsPage() {
       return true;
     });
   }, [leads, tab, search]);
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const { sorted, sortKey, sortDir, requestSort } = useSortableData(filtered, "created_at", "desc");
+  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const statusCount = status => (leads ?? []).filter(l => l.status === status).length;
 
   return <div className="flex h-full flex-col">
@@ -72,7 +74,7 @@ export default function LeadsPage() {
 
           <div className="flex flex-1 min-h-0 flex-col">
             {loading && <TableSkeleton rows={8} cols={9} />}
-            {!loading && <LeadsTable leads={paginated} />}
+            {!loading && <LeadsTable leads={paginated} sortKey={sortKey} sortDir={sortDir} onSort={requestSort} />}
           </div>
 
           {!loading && filtered.length > 0 && <div className="shrink-0"><Pagination page={page} pageSize={PAGE_SIZE} total={filtered.length} onPageChange={setPage} /></div>}

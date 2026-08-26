@@ -99,7 +99,7 @@ export default function DashboardPage() {
                 <StatCard label="Total Jobs" value={stats.total_jobs.toString()} icon={<Briefcase className="h-4 w-4" />} tone="info" />
                 <StatCard label="Qualified Jobs" value={stats.qualified_jobs.toString()} icon={<CheckCircle2 className="h-4 w-4" />} tone="brand" />
                 <StatCard label="Total Leads" value={stats.total_leads.toString()} icon={<Users className="h-4 w-4" />} tone="violet" />
-                <StatCard label="Contacts Found" value={stats.contacts_found.toString()} icon={<UserSearch className="h-4 w-4" />} tone="warning" />
+                <StatCard label="Lead Outreached" value={stats.leads_contacted.toString()} icon={<UserSearch className="h-4 w-4" />} tone="warning" />
               </>}
           </div>
 

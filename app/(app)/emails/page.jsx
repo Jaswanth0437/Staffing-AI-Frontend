@@ -5,13 +5,14 @@ import Link from "next/link";
 import { Eye, Mail, Search } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/Card";
-import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
+import { SortableTH, Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { TableSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { EmailDetailModal } from "@/components/emails/EmailDetailModal";
 import { useEmails } from "@/hooks/useEmails";
+import { useSortableData } from "@/hooks/useSortableData";
 import { formatDateTime, orNotAvailable, titleCase } from "@/lib/utils";
 const STATUS_TONE = {
   draft: "neutral",
@@ -34,6 +35,8 @@ export default function EmailsPage() {
     const q = search.toLowerCase();
     return emails.filter(e => `${e.recipient ?? ""} ${e.subject ?? ""}`.toLowerCase().includes(q));
   }, [emails, search]);
+  const { sorted, sortKey, sortDir, requestSort } = useSortableData(filtered, "sent_at", "desc");
+  const sortProps = { activeSortKey: sortKey, sortDir, onSort: requestSort };
 
   return <div className="flex h-full flex-col">
       <PageHeader title="Emails" subtitle="Every outreach email drafted or sent across all campaigns." />
@@ -59,15 +62,15 @@ export default function EmailsPage() {
               <Table>
                 <THead className="sticky top-0 z-10 bg-gray-50">
                   <TR>
-                    <TH>Recipient</TH>
-                    <TH>Subject</TH>
-                    <TH>Status</TH>
-                    <TH>Sent</TH>
+                    <SortableTH sortKey="recipient" {...sortProps}>Recipient</SortableTH>
+                    <SortableTH sortKey="subject" {...sortProps}>Subject</SortableTH>
+                    <SortableTH sortKey="status" {...sortProps}>Status</SortableTH>
+                    <SortableTH sortKey="sent_at" {...sortProps}>Sent</SortableTH>
                     <TH className="text-right">Actions</TH>
                   </TR>
                 </THead>
                 <TBody>
-                  {filtered.map(email => <TR key={email.id} className="cursor-pointer" onClick={() => setSelected(email)}>
+                  {sorted.map(email => <TR key={email.id} className="cursor-pointer" onClick={() => setSelected(email)}>
                       <TD className="font-medium text-foreground">{orNotAvailable(email.recipient)}</TD>
                       <TD className="text-muted-foreground">{orNotAvailable(email.subject)}</TD>
                       <TD>

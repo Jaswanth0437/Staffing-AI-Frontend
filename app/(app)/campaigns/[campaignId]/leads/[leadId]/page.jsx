@@ -197,12 +197,12 @@ export default function LeadDetailsPage({
           </Card>
 
           <Card>
-            <CardHeader title="Email Review" subtitle="Editable before sending — no employee name or PII is referenced in the copy." action={<Button variant="outline" size="sm" title={draft ? "Regenerate email" : "Generate email"} icon={<Sparkles className="h-3.5 w-3.5" />} loading={generating} onClick={handleGenerate} disabled={!hasConfirmedMatch}>
+            <CardHeader title="Email Review" subtitle="Editable before sending — no employee name or PII is referenced in the copy." action={<Button variant="outline" size="sm" title={draft ? "Regenerate email" : "Generate email"} icon={<Sparkles className="h-3.5 w-3.5" />} loading={generating} onClick={handleGenerate}>
                   {draft ? "Regenerate" : "Generate Email"}
                 </Button>} />
             {!draft && <CardBody>
                 <p className="text-sm text-muted-foreground">
-                  {hasConfirmedMatch ? "Click Generate Email to draft the outreach copy." : "Find a matching employee above before generating an email."}
+                  {hasConfirmedMatch ? "Click Generate Email to draft the outreach copy." : "Click Generate Email for a general capability pitch, or find a matching employee above first for one that references specific overlapping skills."}
                 </p>
               </CardBody>}
             {draft && <CardBody className="flex flex-col gap-3">
