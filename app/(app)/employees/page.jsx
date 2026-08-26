@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { IdCard, Pencil, RefreshCw, Search, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Card } from "@/components/ui/Card";
-import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
+import { SortableTH, Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -14,6 +14,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
 import { EmployeeEditModal } from "@/components/employees/EmployeeEditModal";
 import { useEmployees } from "@/hooks/useEmployees";
+import { useSortableData } from "@/hooks/useSortableData";
 import { deleteEmployee, syncEmployees, updateEmployee } from "@/lib/api";
 import { orNotAvailable } from "@/lib/utils";
 export default function EmployeesPage() {
@@ -39,6 +40,8 @@ export default function EmployeesPage() {
     const q = search.toLowerCase();
     return employees.filter(e => `${e.name} ${e.role_title ?? ""} ${(e.skills ?? []).join(" ")}`.toLowerCase().includes(q));
   }, [employees, search]);
+  const { sorted, sortKey, sortDir, requestSort } = useSortableData(filtered, "name", "asc");
+  const sortProps = { activeSortKey: sortKey, sortDir, onSort: requestSort };
 
   async function handleSync() {
     setSyncing(true);
@@ -124,16 +127,16 @@ export default function EmployeesPage() {
               <Table className="table-fixed">
                 <THead className="sticky top-0 z-10 bg-gray-50">
                   <TR>
-                    <TH className="w-[12%]">Name</TH>
-                    <TH className="w-[12%]">Role</TH>
+                    <SortableTH sortKey="name" className="w-[12%]" {...sortProps}>Name</SortableTH>
+                    <SortableTH sortKey="role_title" className="w-[12%]" {...sortProps}>Role</SortableTH>
                     <TH className="w-[32%]">Skills</TH>
-                    <TH className="w-[16%]">Seniority</TH>
+                    <SortableTH sortKey="seniority" className="w-[16%]" {...sortProps}>Seniority</SortableTH>
                     <TH className="w-[18%]">Summary</TH>
                     <TH className="w-[10%] text-right">Actions</TH>
                   </TR>
                 </THead>
                 <TBody>
-                  {filtered.map(employee => <TR key={employee.id}>
+                  {sorted.map(employee => <TR key={employee.id}>
                       <TD className="truncate font-medium text-foreground">{employee.name}</TD>
                       <TD className="truncate text-muted-foreground">{orNotAvailable(employee.role_title)}</TD>
                       <TD>

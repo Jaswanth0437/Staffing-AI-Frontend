@@ -7,12 +7,12 @@ export function JobDiscoveryChart({
   const qualifiedPct = discovered ? qualified / discovered * 100 : 0;
   const rejectedPct = discovered ? rejected / discovered * 100 : 0;
   const pendingPct = Math.max(0, 100 - qualifiedPct - rejectedPct);
-  const gradient = `conic-gradient(var(--success) 0% ${qualifiedPct}%, var(--danger) ${qualifiedPct}% ${qualifiedPct + rejectedPct}%, #e5e7eb ${qualifiedPct + rejectedPct}% 100%)`;
+  const gradient = `conic-gradient(var(--success) 0% ${qualifiedPct}%, var(--warning) ${qualifiedPct}% ${qualifiedPct + rejectedPct}%, #e5e7eb ${qualifiedPct + rejectedPct}% 100%)`;
   return <div className="flex flex-col items-center gap-8 sm:flex-row sm:justify-around">
       <div className="grid grid-cols-2 gap-x-8 gap-y-4">
         <Metric label="Jobs Discovered" value={discovered} />
         <Metric label="Qualified Jobs" value={qualified} tone="success" />
-        <Metric label="Rejected Jobs" value={rejected} tone="danger" />
+        <Metric label="Rejected Jobs" value={rejected} tone="warning" />
         <Metric label="Qualification Rate" value={`${rate}%`} tone="brand" />
       </div>
 
@@ -27,7 +27,7 @@ export function JobDiscoveryChart({
         </div>
         <div className="flex flex-col gap-2 text-xs text-muted-foreground">
           <Legend color="bg-success" label="Qualified" />
-          <Legend color="bg-danger" label="Rejected" />
+          <Legend color="bg-warning" label="Rejected" />
           {pendingPct > 0 && <Legend color="bg-gray-200" label="Pending" />}
         </div>
       </div>
@@ -38,7 +38,7 @@ function Metric({
   value,
   tone
 }) {
-  const toneClass = tone === "success" ? "text-success" : tone === "danger" ? "text-danger" : tone === "brand" ? "text-brand" : "text-foreground";
+  const toneClass = tone === "success" ? "text-success" : tone === "warning" ? "text-warning" : tone === "brand" ? "text-brand" : "text-foreground";
   return <div>
       <p className="text-xs font-medium text-muted-foreground">{label}</p>
       <p className={`mt-1 text-xl font-semibold tracking-tight ${toneClass}`}>{value}</p>

@@ -92,7 +92,7 @@ export default function CompanyDetailsPage({
           value: "leads",
           count: company.leads.length
         }, {
-          label: "Emails",
+          label: "Lead Outreached",
           value: "emails",
           count: company.emails.length
         }]} />

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { Megaphone, RefreshCw, Trash2 } from "lucide-react";
-import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
+import { SortableTH, Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CampaignStatusBadge } from "./CampaignStatusBadge";
+import { useSortableData } from "@/hooks/useSortableData";
 import { formatDateTime } from "@/lib/utils";
 export function CampaignsTable({
   campaigns,
@@ -11,25 +12,27 @@ export function CampaignsTable({
   onRecheckRequest,
   onDeleteRequest
 }) {
+  const { sorted, sortKey, sortDir, requestSort } = useSortableData(campaigns, "created_at", "desc");
   if (campaigns.length === 0) {
     return <div className="flex flex-1 items-center justify-center">
         <EmptyState icon={<Megaphone className="h-5 w-5" />} title="No campaigns found" description="Create your first campaign to start pulling jobs from Apify." />
       </div>;
   }
+  const sortProps = { activeSortKey: sortKey, sortDir, onSort: requestSort };
   return <TableContainer className="flex-1 min-h-0 overflow-y-auto">
       <Table>
         <THead className="sticky top-0 z-10 bg-gray-50">
           <TR>
-            <TH>Campaign Name</TH>
-            <TH>Role</TH>
-            <TH>Status</TH>
-            <TH>Created</TH>
-            <TH>Last Checked</TH>
+            <SortableTH sortKey="name" {...sortProps}>Campaign Name</SortableTH>
+            <SortableTH sortKey="role_name" {...sortProps}>Role</SortableTH>
+            <SortableTH sortKey="status" {...sortProps}>Status</SortableTH>
+            <SortableTH sortKey="created_at" {...sortProps}>Created</SortableTH>
+            <SortableTH sortKey="last_checked_at" {...sortProps}>Last Checked</SortableTH>
             <TH className="text-right">Actions</TH>
           </TR>
         </THead>
         <TBody>
-          {campaigns.map(campaign => <TR key={campaign.id}>
+          {sorted.map(campaign => <TR key={campaign.id}>
               <TD>
                 <Link href={`/campaigns/${campaign.id}`} className="font-medium text-foreground hover:text-brand">
                   {campaign.name}

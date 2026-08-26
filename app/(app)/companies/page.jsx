@@ -10,6 +10,7 @@ import { TableSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { CompaniesTable } from "@/components/companies/CompaniesTable";
 import { useCompanies } from "@/hooks/useCompanies";
+import { useSortableData } from "@/hooks/useSortableData";
 const PAGE_SIZE = 8;
 export default function CompaniesPage() {
   const {
@@ -30,7 +31,8 @@ export default function CompaniesPage() {
       return true;
     });
   }, [companies, search, location]);
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const { sorted, sortKey, sortDir, requestSort } = useSortableData(filtered, "company_name", "asc");
+  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   return <div className="flex h-full flex-col">
       <PageHeader title="Companies" subtitle="Companies discovered through job qualification, grouped from every campaign's jobs." />
 
@@ -61,7 +63,7 @@ export default function CompaniesPage() {
 
           <div className="flex flex-1 min-h-0 flex-col">
             {loading && <TableSkeleton rows={8} cols={7} />}
-            {!loading && <CompaniesTable companies={paginated} />}
+            {!loading && <CompaniesTable companies={paginated} sortKey={sortKey} sortDir={sortDir} onSort={requestSort} />}
           </div>
           {!loading && filtered.length > 0 && <div className="shrink-0"><Pagination page={page} pageSize={PAGE_SIZE} total={filtered.length} onPageChange={setPage} /></div>}
         </Card>}

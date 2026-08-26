@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 export function TableContainer({
   children,
@@ -50,4 +51,25 @@ export function TD({
   ...props
 }) {
   return <td className={cn("px-4 py-4 align-middle text-foreground", className)} {...props} />;
+}
+/** A clickable TH that reports its own sort state via a chevron — pair with
+ * useSortableData()'s { sortKey, sortDir, requestSort }. `sortKey` here must
+ * match the key passed to that same row's sort comparator. */
+export function SortableTH({
+  children,
+  sortKey,
+  activeSortKey,
+  sortDir,
+  onSort,
+  className,
+  ...props
+}) {
+  const active = activeSortKey === sortKey;
+  const Icon = active ? sortDir === "asc" ? ChevronUp : ChevronDown : ChevronsUpDown;
+  return <th className={cn("px-4 py-3.5 text-xs font-semibold text-muted-foreground", className)} {...props}>
+      <button type="button" onClick={() => onSort(sortKey)} title={`Sort by ${typeof children === "string" ? children : "this column"}`} className={cn("focus-ring inline-flex items-center gap-1 rounded transition-colors hover:text-foreground", active && "text-foreground")}>
+        {children}
+        <Icon className={cn("h-3 w-3", !active && "opacity-40")} />
+      </button>
+    </th>;
 }

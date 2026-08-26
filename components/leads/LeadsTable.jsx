@@ -1,31 +1,35 @@
 import Link from "next/link";
 import { Eye, Users } from "lucide-react";
-import { Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
+import { SortableTH, Table, TableContainer, TBody, TD, TH, THead, TR } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LeadStatusBadge } from "./LeadStatusBadge";
 import { CONTACT_TIER_LABELS } from "@/lib/constants";
 import { formatDate, orNotAvailable } from "@/lib/utils";
 export function LeadsTable({
-  leads
+  leads,
+  sortKey,
+  sortDir,
+  onSort
 }) {
   if (leads.length === 0) {
     return <div className="flex flex-1 items-center justify-center">
         <EmptyState icon={<Users className="h-5 w-5" />} title="No leads found" description="Leads appear here once a qualified job is turned into a lead from a campaign." />
       </div>;
   }
+  const sortProps = { activeSortKey: sortKey, sortDir, onSort };
   return <TableContainer className="flex-1 min-h-0 overflow-y-auto">
       <Table>
         <THead className="sticky top-0 z-10 bg-gray-50">
           <TR>
-            <TH>Contact</TH>
-            <TH>Tier</TH>
-            <TH>Job Title</TH>
-            <TH>Company</TH>
+            <SortableTH sortKey="contact.name" {...sortProps}>Contact</SortableTH>
+            <SortableTH sortKey="contact.type" {...sortProps}>Tier</SortableTH>
+            <SortableTH sortKey="job.job_title" {...sortProps}>Job Title</SortableTH>
+            <SortableTH sortKey="company.company_name" {...sortProps}>Company</SortableTH>
             <TH>Email</TH>
             <TH>Phone</TH>
-            <TH>Status</TH>
-            <TH>Created</TH>
+            <SortableTH sortKey="status" {...sortProps}>Status</SortableTH>
+            <SortableTH sortKey="created_at" {...sortProps}>Created</SortableTH>
             <TH className="text-right">Actions</TH>
           </TR>
         </THead>
